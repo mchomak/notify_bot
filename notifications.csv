@@ -1,3 +1,1 @@
-user_id,created_at,send_at,file_id,alert_id,media_type
-1132147659,2025-08-09 21:16:07.658157,2025-08-10 21:00:00,DQACAgIAAxkBAAM6aJeQW-uVNmkqMWu_4c0Md-fnJDkAAp99AAKnEbhIDdfMmCRVXHA2BA,7cc2ce1b-a9d6-464e-aa5a-c9ad75a4a7b4,video_note
-1132147659,2025-08-09 21:16:37.928188,2025-08-10 21:00:00,DQACAgIAAxkBAANCaJeQgXFjCxlSpoBP6WG5ZFkhB8YAAqJ9AAKnEbhIyWT3zb_askA2BA,5a7eff85-3ea7-45f5-89a6-56d4c43de1c8,video_note
+user_id,created_at,send_at,file_id,media_type,alert_id,title,kind,times,days_of_week,window_start,window_end,interval_minutes,cron_expr

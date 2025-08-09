@@ -1,0 +1,208 @@
+2025-08-09 23:34:37.238 | DEBUG    | __main__:<module>:39 - Logger initialized. Starting bot setup...
+2025-08-09 23:34:37.663 | DEBUG    | __main__:<module>:48 - Bot, Dispatcher, Scheduler, OpenAI client created.
+2025-08-09 23:34:37.663 | DEBUG    | __main__:ensure_csv:53 - Ensuring CSV exists at: notifications.csv
+2025-08-09 23:34:37.663 | DEBUG    | __main__:ensure_csv:56 - CSV file exists.
+2025-08-09 23:34:37.665 | DEBUG    | __main__:main:918 - Starting scheduler...
+2025-08-09 23:34:37.666 | DEBUG    | __main__:main:920 - Restoring scheduled jobs from CSV...
+2025-08-09 23:34:37.666 | DEBUG    | __main__:restore_jobs_from_csv:187 - Restoring jobs from CSV ...
+2025-08-09 23:34:37.666 | DEBUG    | __main__:load_alerts:68 - Loading alerts from CSV...
+2025-08-09 23:34:37.672 | DEBUG    | __main__:load_alerts:91 - Loaded 1 alerts.
+2025-08-09 23:34:37.672 | DEBUG    | __main__:restore_jobs_from_csv:194 - Restoring alert_id=0ecc0f9d-3f1e-4553-9441-3a35cb668763 kind=one_time
+2025-08-09 23:34:37.673 | DEBUG    | __main__:restore_jobs_from_csv:205 -  -> expired one_time, removing
+2025-08-09 23:34:37.674 | DEBUG    | __main__:remove_alert:114 - Removing alert id=0ecc0f9d-3f1e-4553-9441-3a35cb668763
+2025-08-09 23:34:37.674 | DEBUG    | __main__:load_alerts:68 - Loading alerts from CSV...
+2025-08-09 23:34:37.677 | DEBUG    | __main__:load_alerts:91 - Loaded 1 alerts.
+2025-08-09 23:34:37.679 | DEBUG    | __main__:save_alerts:96 - Saving 0 alerts to CSV...
+2025-08-09 23:34:37.680 | DEBUG    | __main__:save_alerts:98 - CSV saved.
+2025-08-09 23:34:37.680 | DEBUG    | __main__:remove_alert:120 - Removed. Before=1, After=0
+2025-08-09 23:34:37.681 | DEBUG    | __main__:restore_jobs_from_csv:240 - Restore finished.
+2025-08-09 23:34:37.681 | DEBUG    | __main__:main:922 - Start polling...
+2025-08-09 23:34:42.291 | DEBUG    | __main__:new_alert:469 - New notification requested by user_id=1132147659
+2025-08-09 23:34:47.479 | DEBUG    | __main__:handle_video:477 - Received media from user_id=1132147659, media_type=video_note, file_id=DQACAgIAAxkBAAPTaJew5-2yxEc_H86gPZIBUQeE-AMAApN-AAKnEcBIO1BfdwPxhLw2BA
+2025-08-09 23:34:53.969 | DEBUG    | __main__:cb_kind_one_time:492 - User 1132147659 chose ONE_TIME
+2025-08-09 23:35:27.748 | DEBUG    | __main__:handle_message:547 - handle_message user_id=1132147659 text='23 40' state_keys=['file_id', 'media_type', 'pending_kind', 'pending_run_at', 'pending_interval', 'awaiting_title']
+2025-08-09 23:35:27.748 | DEBUG    | __main__:handle_time_parse_and_confirm:589 - handle_time_parse_and_confirm user_id=1132147659 raw='23 40'
+2025-08-09 23:35:27.749 | DEBUG    | __main__:handle_time_parse_and_confirm:603 - Normalized text='23 40' day_shift=0
+2025-08-09 23:35:27.750 | DEBUG    | __main__:handle_time_parse_and_confirm:639 - Pattern #1 matched: h=23, m=40, period=None
+2025-08-09 23:35:27.750 | DEBUG    | __main__:log_time_parse:284 - Logging time parse: user_id=1132147659, input='23 40', recognized=2025-08-09 23:40:00
+2025-08-09 23:35:27.751 | DEBUG    | __main__:handle_time_parse_and_confirm:700 - Time parsed OK for user_id=1132147659, run_at=2025-08-09 23:40:00
+2025-08-09 23:35:30.319 | DEBUG    | __main__:cb_time_confirm:710 - time_confirm by user_id=1132147659
+2025-08-09 23:35:35.727 | DEBUG    | __main__:cb_title_enter:745 - title_enter by user_id=1132147659
+2025-08-09 23:35:42.892 | DEBUG    | __main__:handle_message:547 - handle_message user_id=1132147659 text='Патапим' state_keys=['file_id', 'media_type', 'pending_kind', 'pending_run_at', 'pending_interval', 'awaiting_title']
+2025-08-09 23:35:42.892 | DEBUG    | __main__:handle_message:555 - Received title from user_id=1132147659, title='Патапим'
+2025-08-09 23:35:42.892 | DEBUG    | __main__:finalize_and_save_alert:768 - finalize_and_save_alert user_id=1132147659 kind=one_time title='Патапим'
+2025-08-09 23:35:42.892 | DEBUG    | __main__:add_alert_row:102 - Adding alert row: {'user_id': 1132147659, 'created_at': datetime.datetime(2025, 8, 9, 23, 35, 42, 892249), 'send_at': datetime.datetime(2025, 8, 9, 23, 40), 'file_id': 'DQACAgIAAxkBAAPTaJew5-2yxEc_H86gPZIBUQeE-AMAApN-AAKnEcBIO1BfdwPxhLw2BA', 'media_type': 'video_note', 'title': 'Патапим', 'kind': 'one_time', 'times': '', 'days_of_week': '', 'window_start': '', 'window_end': '', 'interval_minutes': '', 'cron_expr': ''}
+2025-08-09 23:35:42.892 | DEBUG    | __main__:load_alerts:68 - Loading alerts from CSV...
+2025-08-09 23:35:42.896 | DEBUG    | __main__:load_alerts:91 - Loaded 0 alerts.
+2025-08-09 23:35:42.898 | DEBUG    | __main__:save_alerts:96 - Saving 1 alerts to CSV...
+2025-08-09 23:35:42.899 | DEBUG    | __main__:save_alerts:98 - CSV saved.
+2025-08-09 23:35:42.899 | DEBUG    | __main__:add_alert_row:109 - Alert added with id=6ce06704-0ba9-4a0b-984b-1dfd7275bf97
+2025-08-09 23:35:42.899 | DEBUG    | __main__:schedule_one_time:125 - Scheduling one-time alert_id=6ce06704-0ba9-4a0b-984b-1dfd7275bf97 at 2025-08-09T23:40:00
+2025-08-09 23:35:42.900 | DEBUG    | __main__:finalize_and_save_alert:790 - Saved ONE_TIME alert id=6ce06704-0ba9-4a0b-984b-1dfd7275bf97 for user_id=1132147659
+2025-08-09 23:35:48.085 | DEBUG    | __main__:new_alert:469 - New notification requested by user_id=1132147659
+2025-08-09 23:35:58.454 | DEBUG    | __main__:handle_video:477 - Received media from user_id=1132147659, media_type=video_note, file_id=DQACAgIAAxkBAAPfaJexLqTty54tZ30sCyPI9V8VE5cAAph-AAKnEcBId0Do0cMzUZo2BA
+2025-08-09 23:36:00.311 | DEBUG    | __main__:cb_kind_interval:500 - User 1132147659 chose INTERVAL
+2025-08-09 23:36:11.739 | DEBUG    | __main__:handle_message:547 - handle_message user_id=1132147659 text='Каждый день в 23 45' state_keys=['file_id', 'media_type', 'pending_kind', 'pending_run_at', 'pending_interval', 'awaiting_title']
+2025-08-09 23:36:11.739 | DEBUG    | __main__:handle_message:566 - Parsing interval description via AI for user_id=1132147659
+2025-08-09 23:36:11.740 | DEBUG    | __main__:parse_interval_with_ai:332 - AI interval parse request: Каждый день в 23 45
+2025-08-09 23:36:16.521 | DEBUG    | __main__:parse_interval_with_ai:343 - AI interval parse raw response: ```json
+{
+  "kind": "daily",
+  "times": ["23:45"]
+}
+```
+2025-08-09 23:36:16.521 | ERROR    | __main__:parse_interval_with_ai:351 - AI parse error: Expecting value: line 1 column 1 (char 0)
+Traceback (most recent call last):
+
+  File "c:\Users\McHomak\Projects\notify_bot\main.py", line 927, in <module>
+    asyncio.run(main())
+    │       │   └ <function main at 0x0000019D878F5440>
+    │       └ <function run at 0x0000019D726D5300>
+    └ <module 'asyncio' from 'C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\...
+
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           │      │   └ <coroutine object main at 0x0000019D8788A440>
+           │      └ <function Runner.run at 0x0000019D7273CEA0>
+           └ <asyncio.runners.Runner object at 0x0000019D878F2B50>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<main() running at c:\Users\McHomak\Projects\notify_bot\main.py:923> wait_for=<Future pendin...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x0000019D7273AAC0>
+           │    └ <ProactorEventLoop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x0000019D878F2B50>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 641, in run_until_complete
+    self.run_forever()
+    │    └ <function ProactorEventLoop.run_forever at 0x0000019D727FE520>
+    └ <ProactorEventLoop running=True closed=False debug=False>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py", line 321, in run_forever
+    super().run_forever()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 608, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x0000019D7273C860>
+    └ <ProactorEventLoop running=True closed=False debug=False>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 1936, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x0000019D72682B60>
+    └ <Handle Task.task_wakeup(<Future finished result=False>)>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\events.py", line 84, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle Task.task_wakeup(<Future finished result=False>)>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle Task.task_wakeup(<Future finished result=False>)>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle Task.task_wakeup(<Future finished result=False>)>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+                     │    │           │    │         └ {'dispatcher': <Dispatcher '0x19d8733a150'>, 'bots': (<aiogram.client.bot.Bot object at 0x0000019D87356090>,)}
+                     │    │           │    └ Update(update_id=918961194, message=Message(message_id=227, date=datetime.datetime(2025, 8, 9, 20, 36, 12, tzinfo=TzInfo(UTC)...
+                     │    │           └ <aiogram.client.bot.Bot object at 0x0000019D87356090>
+                     │    └ <function Dispatcher.feed_update at 0x0000019D876D31A0>
+                     └ <Dispatcher '0x19d8733a150'>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+                     │    │      └ <function TelegramEventObserver.wrap_outer_middleware at 0x0000019D876D1D00>
+                     │    └ <aiogram.dispatcher.event.telegram.TelegramEventObserver object at 0x0000019D87843250>
+                     └ <Dispatcher '0x19d8733a150'>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\error.py", line 25, in __call__
+    return await handler(event, data)
+                 │       │      └ {'dispatcher': <Dispatcher '0x19d8733a150'>, 'bots': (<aiogram.client.bot.Bot object at 0x0000019D87356090>,), 'bot': <aiogra...
+                 │       └ Update(update_id=918961194, message=Message(message_id=227, date=datetime.datetime(2025, 8, 9, 20, 36, 12, tzinfo=TzInfo(UTC)...
+                 └ functools.partial(<aiogram.dispatcher.middlewares.user_context.UserContextMiddleware object at 0x0000019D878438D0>, functools...
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\dispatcher\middlewares\user_context.py", line 56, in __call__
+    return await handler(event, data)
+                 │       │      └ {'dispatcher': <Dispatcher '0x19d8733a150'>, 'bots': (<aiogram.client.bot.Bot object at 0x0000019D87356090>,), 'bot': <aiogra...
+                 │       └ Update(update_id=918961194, message=Message(message_id=227, date=datetime.datetime(2025, 8, 9, 20, 36, 12, tzinfo=TzInfo(UTC)...
+                 └ functools.partial(<aiogram.fsm.middleware.FSMContextMiddleware object at 0x0000019D87843950>, <function TelegramEventObserver...
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\fsm\middleware.py", line 42, in __call__
+    return await handler(event, data)
+                 │       │      └ {'dispatcher': <Dispatcher '0x19d8733a150'>, 'bots': (<aiogram.client.bot.Bot object at 0x0000019D87356090>,), 'bot': <aiogra...
+                 │       └ Update(update_id=918961194, message=Message(message_id=227, date=datetime.datetime(2025, 8, 9, 20, 36, 12, tzinfo=TzInfo(UTC)...
+                 └ <function TelegramEventObserver.trigger at 0x0000019D8793B2E0>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+                 │             │      └ {'dispatcher': <Dispatcher '0x19d8733a150'>, 'bots': (<aiogram.client.bot.Bot object at 0x0000019D87356090>,), 'bot': <aiogra...
+                 │             └ Update(update_id=918961194, message=Message(message_id=227, date=datetime.datetime(2025, 8, 9, 20, 36, 12, tzinfo=TzInfo(UTC)...
+                 └ <function CallableObject.call at 0x0000019D87939C60>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+                 └ functools.partial(<bound method Dispatcher._listen_update of <Dispatcher '0x19d8733a150'>>, Update(update_id=918961194, messa...
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\dispatcher\dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+                 │    │                           │                  │        └ {'dispatcher': <Dispatcher '0x19d8733a150'>, 'bots': (<aiogram.client.bot.Bot object at 0x0000019D87356090>,), 'bot': <aiogra...
+                 │    │                           │                  └ Message(message_id=227, date=datetime.datetime(2025, 8, 9, 20, 36, 12, tzinfo=TzInfo(UTC)), chat=Chat(id=1132147659, type='pr...
+                 │    │                           └ 'message'
+                 │    └ <function Router.propagate_event at 0x0000019D876D27A0>
+                 └ <Dispatcher '0x19d8733a150'>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+                 │        │                     │               │           └ {'dispatcher': <Dispatcher '0x19d8733a150'>, 'bots': (<aiogram.client.bot.Bot object at 0x0000019D87356090>,), 'bot': <aiogra...
+                 │        │                     │               └ Message(message_id=227, date=datetime.datetime(2025, 8, 9, 20, 36, 12, tzinfo=TzInfo(UTC)), chat=Chat(id=1132147659, type='pr...
+                 │        │                     └ <function Router.propagate_event.<locals>._wrapped at 0x0000019D879396C0>
+                 │        └ <function TelegramEventObserver.wrap_outer_middleware at 0x0000019D876D1D00>
+                 └ <aiogram.dispatcher.event.telegram.TelegramEventObserver object at 0x0000019D87827E90>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 141, in _wrapped
+    return await self._propagate_event(
+                 │    └ <function Router._propagate_event at 0x0000019D876D2840>
+                 └ <Dispatcher '0x19d8733a150'>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\dispatcher\router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+                     │        │       │        └ {'dispatcher': <Dispatcher '0x19d8733a150'>, 'bots': (<aiogram.client.bot.Bot object at 0x0000019D87356090>,), 'bot': <aiogra...
+                     │        │       └ Message(message_id=227, date=datetime.datetime(2025, 8, 9, 20, 36, 12, tzinfo=TzInfo(UTC)), chat=Chat(id=1132147659, type='pr...
+                     │        └ <function TelegramEventObserver.trigger at 0x0000019D876D1E40>
+                     └ <aiogram.dispatcher.event.telegram.TelegramEventObserver object at 0x0000019D87827E90>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+                 │             │      └ {'dispatcher': <Dispatcher '0x19d8733a150'>, 'bots': (<aiogram.client.bot.Bot object at 0x0000019D87356090>,), 'bot': <aiogra...
+                 │             └ Message(message_id=227, date=datetime.datetime(2025, 8, 9, 20, 36, 12, tzinfo=TzInfo(UTC)), chat=Chat(id=1132147659, type='pr...
+                 └ <function CallableObject.call at 0x0000019D878F7420>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\dispatcher\event\handler.py", line 43, in call
+    return await wrapped()
+                 └ functools.partial(<function handle_message at 0x0000019D878F4E00>, Message(message_id=227, date=datetime.datetime(2025, 8, 9,...
+
+  File "c:\Users\McHomak\Projects\notify_bot\main.py", line 567, in handle_message
+    parsed = await parse_interval_with_ai(msg.text)
+                   │                      │   └ 'Каждый день в 23 45'
+                   │                      └ Message(message_id=227, date=datetime.datetime(2025, 8, 9, 20, 36, 12, tzinfo=TzInfo(UTC)), chat=Chat(id=1132147659, type='pr...
+                   └ <function parse_interval_with_ai at 0x0000019D878F4540>
+
+> File "c:\Users\McHomak\Projects\notify_bot\main.py", line 344, in parse_interval_with_ai
+    data = json.loads(content)
+           │    │     └ '```json\n{\n  "kind": "daily",\n  "times": ["23:45"]\n}\n```'
+           │    └ <function loads at 0x0000019D72A13BA0>
+           └ <module 'json' from 'C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib...
+
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           │                │      └ '```json\n{\n  "kind": "daily",\n  "times": ["23:45"]\n}\n```'
+           │                └ <function JSONDecoder.decode at 0x0000019D72A134C0>
+           └ <json.decoder.JSONDecoder object at 0x0000019D72A1A010>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\json\decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               │    │          │      │  └ '```json\n{\n  "kind": "daily",\n  "times": ["23:45"]\n}\n```'
+               │    │          │      └ <built-in method match of re.Pattern object at 0x0000019D72A0CFB0>
+               │    │          └ '```json\n{\n  "kind": "daily",\n  "times": ["23:45"]\n}\n```'
+               │    └ <function JSONDecoder.raw_decode at 0x0000019D72A13560>
+               └ <json.decoder.JSONDecoder object at 0x0000019D72A1A010>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\json\decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+          │                                  └ '```json\n{\n  "kind": "daily",\n  "times": ["23:45"]\n}\n```'
+          └ <class 'json.decoder.JSONDecodeError'>
+
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+2025-08-09 23:36:16.541 | DEBUG    | __main__:handle_message:569 - AI failed to parse interval for user_id=1132147659
+2025-08-09 23:36:31.020 | DEBUG    | __main__:list_alerts:510 - Listing alerts for user_id=1132147659
+2025-08-09 23:36:31.020 | DEBUG    | __main__:load_alerts:68 - Loading alerts from CSV...
+2025-08-09 23:36:31.029 | DEBUG    | __main__:load_alerts:91 - Loaded 1 alerts.
+2025-08-09 23:40:00.012 | DEBUG    | __main__:send_video_back:891 - send_video_back called for user_id=1132147659 alert_id=6ce06704-0ba9-4a0b-984b-1dfd7275bf97
+2025-08-09 23:40:00.012 | DEBUG    | __main__:load_alerts:68 - Loading alerts from CSV...
+2025-08-09 23:40:00.019 | DEBUG    | __main__:load_alerts:91 - Loaded 1 alerts.
+2025-08-09 23:40:00.021 | DEBUG    | __main__:send_video_back:900 - Sending media_type=video_note file_id=DQACAgIAAxkBAAPTaJew5-2yxEc_H86gPZIBUQeE-AMAApN-AAKnEcBIO1BfdwPxhLw2BA to user_id=1132147659
+2025-08-09 23:40:00.135 | DEBUG    | __main__:send_video_back:912 - One-time alert sent, removing alert_id=6ce06704-0ba9-4a0b-984b-1dfd7275bf97
+2025-08-09 23:40:00.135 | DEBUG    | __main__:remove_alert:114 - Removing alert id=6ce06704-0ba9-4a0b-984b-1dfd7275bf97
+2025-08-09 23:40:00.135 | DEBUG    | __main__:load_alerts:68 - Loading alerts from CSV...
+2025-08-09 23:40:00.140 | DEBUG    | __main__:load_alerts:91 - Loaded 1 alerts.
+2025-08-09 23:40:00.141 | DEBUG    | __main__:save_alerts:96 - Saving 0 alerts to CSV...
+2025-08-09 23:40:00.141 | DEBUG    | __main__:save_alerts:98 - CSV saved.
+2025-08-09 23:40:00.142 | DEBUG    | __main__:remove_alert:120 - Removed. Before=1, After=0
