@@ -18,8 +18,13 @@ from aiogram.types import (
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from config import API_TOKEN, CSV_FILE, CSV_FIELDS
 from text import phrases
+import json
+from openai import OpenAI
+from apscheduler.triggers.cron import CronTrigger
+
 
 # --- Настройка бота и планировщика -------------------------------------------
+client = OpenAI()
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 scheduler = AsyncIOScheduler()
@@ -37,20 +42,37 @@ except FileNotFoundError:
 def load_alerts() -> pd.DataFrame:
     df = pd.read_csv(
         CSV_FILE,
-        dtype={"user_id": "int64", "file_id": "string", "media_type": "string", "alert_id": "string"},
+        dtype={
+            "user_id": "int64",
+            "file_id": "string",
+            "media_type": "string",
+            "name": "string",
+            "kind": "string",
+            "recurrence_json": "string",
+            "alert_id": "string",
+        },
         parse_dates=["created_at", "send_at"]
     )
-    for col in ["user_id", "created_at", "send_at", "file_id", "media_type", "alert_id"]:
+    for col in ["user_id","created_at","send_at","file_id","media_type","name","kind","recurrence_json","alert_id"]:
         if col not in df.columns:
             df[col] = pd.Series(dtype="object")
     return df
+
 
 
 def save_alerts(df: pd.DataFrame) -> None:
     df.to_csv(CSV_FILE, index=False)
 
 
-def add_alert(user_id: int, send_at: datetime, file_id: str, media_type: str) -> str:
+def add_alert(
+    user_id: int,
+    send_at: Optional[datetime],
+    file_id: str,
+    media_type: str,
+    name: Optional[str],
+    kind: str,  # "once" | "recurring"
+    recurrence_json: Optional[str] = None
+) -> str:
     df = load_alerts()
     alert_id = str(uuid.uuid4())
     new_row = pd.DataFrame([{
@@ -59,11 +81,15 @@ def add_alert(user_id: int, send_at: datetime, file_id: str, media_type: str) ->
         "send_at": send_at,
         "file_id": file_id,
         "media_type": media_type,
+        "name": (name or None),
+        "kind": kind,
+        "recurrence_json": (recurrence_json or None),
         "alert_id": alert_id
     }])
     df = pd.concat([df, new_row], ignore_index=True)
     save_alerts(df)
     return alert_id
+
 
 
 def remove_alert(alert_id: str) -> None:
@@ -81,6 +107,55 @@ def schedule_job(alert_id: str, user_id: int, send_at: datetime):
         id=alert_id,
         replace_existing=True
     )
+
+
+def schedule_daily_time(alert_id: str, user_id: int, hh: int, mm: int):
+    scheduler.add_job(
+        send_video_back,
+        CronTrigger(hour=hh, minute=mm),
+        args=(user_id, alert_id),
+        id=f"daily::{alert_id}",
+        replace_existing=True
+    )
+
+def schedule_daily_window_setup(alert_id: str, user_id: int, hh: int, mm: int, interval_minutes: float, end_h: int, end_m: int):
+    """
+    Ежедневно в hh:mm ставим "сетап" на день: создаём серию единичных задач
+    по шагу interval_minutes до end_h:end_m (только на текущий день).
+    """
+    def _setup_for_today():
+        now = datetime.now()
+        start = now.replace(hour=hh, minute=mm, second=0, microsecond=0)
+        end = now.replace(hour=end_h, minute=end_m, second=0, microsecond=0)
+        if end <= start:
+            end = end + pd.Timedelta(days=1)  # если окно пересекает полночь
+
+        t = start
+        i = 0
+        while t <= end:
+            job_id = f"{alert_id}::{t.strftime('%Y%m%d%H%M')}"
+            if t >= now:
+                scheduler.add_job(
+                    send_video_back,
+                    "date",
+                    run_date=t,
+                    args=(user_id, alert_id),
+                    id=job_id,
+                    replace_existing=True
+                )
+            t = t + pd.Timedelta(minutes=interval_minutes)
+            i += 1
+
+    # сам ежедневный "setup" (Cron)
+    scheduler.add_job(
+        _setup_for_today,
+        CronTrigger(hour=hh, minute=mm),
+        id=f"dailywin::{alert_id}",
+        replace_existing=True
+    )
+    # сразу на сегодня тоже проставим (чтобы не ждать до завтра)
+    _setup_for_today()
+
 
 # --- Кнопки -------------------------------------------------------------------
 main_kb = ReplyKeyboardMarkup(
@@ -102,6 +177,24 @@ def confirm_kb() -> InlineKeyboardMarkup:
         ]
     )
 
+
+def mode_kb() -> InlineKeyboardMarkup:
+    # phrases["once_btn"] = "Разовое"
+    # phrases["recurring_btn"] = "Повторяющееся"
+    return InlineKeyboardMarkup(
+        inline_keyboard=[[
+            InlineKeyboardButton(text=phrases["once_btn"], callback_data="mode_once"),
+            InlineKeyboardButton(text=phrases["recurring_btn"], callback_data="mode_recurring"),
+        ]]
+    )
+
+def skip_name_kb() -> InlineKeyboardMarkup:
+    # phrases["skip_name_btn"] = "Пропустить"
+    return InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton(text=phrases["skip_name_btn"], callback_data="skip_name")]]
+    )
+
+
 # --- Хендлеры ----------------------------------------------------------------
 @dp.message(Command("start"))
 async def cmd_start(msg: types.Message):
@@ -118,8 +211,26 @@ async def new_alert(msg: types.Message, state: FSMContext):
 async def handle_video(msg: types.Message, state: FSMContext):
     file = msg.video or msg.video_note
     media_type = "video_note" if msg.video_note else "video"
-    await state.update_data(file_id=file.file_id, media_type=media_type, pending_run_at=None)
-    await msg.answer(phrases["saved_video"] + "\n" + phrases["ask_time"])
+    await state.clear()
+    await state.update_data(file_id=file.file_id, media_type=media_type, pending_run_at=None, mode=None)
+    # phrases["choose_mode"] = "Это разовая нотификация или повторяющаяся?"
+    await msg.answer(phrases["choose_mode"], reply_markup=mode_kb())
+
+
+@dp.callback_query(F.data == "mode_once")
+async def cb_mode_once(cb: types.CallbackQuery, state: FSMContext):
+    await state.update_data(mode="once")
+    await cb.message.edit_reply_markup(reply_markup=None)
+    await cb.message.answer(phrases["ask_time"])
+    await cb.answer()
+
+@dp.callback_query(F.data == "mode_recurring")
+async def cb_mode_recurring(cb: types.CallbackQuery, state: FSMContext):
+    await state.update_data(mode="recurring")
+    await cb.message.edit_reply_markup(reply_markup=None)
+    # phrases["ask_recur_text"] = "Опиши условия в одном сообщении (пример: «каждый день в 21:00» или «ежедневно с 15:00 до 21:00 каждые 1.5 часа»)."
+    await cb.message.answer(phrases["ask_recur_text"])
+    await cb.answer()
 
 
 @dp.message(F.text == "Мои уведомления")
@@ -138,16 +249,103 @@ async def list_alerts(msg: types.Message):
         await msg.answer(phrases["your_alerts"].format(list=text))
 
 
+
+def ai_parse_recurrence(text: str) -> tuple[Optional[dict], Optional[str]]:
+    """
+    Просим ИИ распознать сценарий повторения и вернуть JSON.
+    Схема JSON (минимум одна из поддерживаемых):
+    - {"type":"daily_time","time":"HH:MM"}
+    - {"type":"interval_window_daily","start_time":"HH:MM","end_time":"HH:MM","interval_minutes":90}
+    Дополнительно допускаются ключи:
+      "days_of_week": [1..7]  # 1=Пн ... 7=Вс (пока можно игнорировать)
+    Никакого текста вокруг — только валидный JSON.
+    """
+    system = (
+        "Ты парсер расписаний. Верни ТОЛЬКО валидный JSON по одной из схем:\n"
+        "{\"type\":\"daily_time\",\"time\":\"HH:MM\"}\n"
+        "{\"type\":\"interval_window_daily\",\"start_time\":\"HH:MM\",\"end_time\":\"HH:MM\",\"interval_minutes\":NUMBER}\n"
+        "Если ничего не подошло — верни {}."
+    )
+    try:
+        resp = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {"role":"system","content":system},
+                {"role":"user","content":text}
+            ],
+            temperature=0
+        )
+        content = resp.choices[0].message.content.strip()
+        # выдернем JSON (если вдруг в код-блок завернули)
+        m = re.search(r"\{.*\}", content, re.DOTALL)
+        if not m:
+            return None, "no-json"
+        
+        data = json.loads(m.group(0))
+        if not isinstance(data, dict):
+            return None, "bad-json"
+        
+        return data, None
+    
+    except Exception as e:
+        return None, str(e)
+
+def _hhmm(s: str) -> tuple[int,int]:
+    h, m = s.strip().split(":")
+    return int(h), int(m)
+
+def schedule_recurring(alert_id: str, user_id: int, rec: dict):
+    t = (rec.get("type") or "").lower()
+    if t == "daily_time":
+        hh, mm = _hhmm(rec["time"])
+        schedule_daily_time(alert_id, user_id, hh, mm)
+    elif t == "interval_window_daily":
+        sh, sm = _hhmm(rec["start_time"])
+        eh, em = _hhmm(rec["end_time"])
+        interval = float(rec["interval_minutes"])
+        schedule_daily_window_setup(alert_id, user_id, sh, sm, interval, eh, em)
+    else:
+        raise ValueError("Unsupported recurrence type")
+
+
+@dp.message(F.text, ~F.via_bot)
+async def handle_recurring_text(msg: types.Message, state: FSMContext):
+    data = await state.get_data()
+    # если это не режим recurring — отдаём управление следующему хендлеру (например, handle_time)
+    if data.get("mode") != "recurring":
+        return
+
+    file_id = data.get("file_id")
+    media_type = data.get("media_type")
+    if not file_id:
+        return await msg.answer(phrases["no_video"])
+
+    rec, err = ai_parse_recurrence(msg.text.strip())
+    if not rec:
+        # phrases["recur_parse_error"] = "Не смог распознать расписание. Попробуй иначе сформулировать."
+        return await msg.answer(phrases["recur_parse_error"])
+
+    # покажем краткую сводку и попросим подтвердить
+    summary = json.dumps(rec, ensure_ascii=False)
+    await state.update_data(pending_recur=summary)  # сохраним JSON строкой
+    # phrases["recur_confirm_prompt"] = "Понял так: {summary}\nПодтвердить или задать заново?"
+    await msg.answer(
+        phrases["recur_confirm_prompt"].format(summary=summary),
+        reply_markup=confirm_kb()
+    )
+
+
 # --- Разбор времени + подтверждение ------------------------------------------
 @dp.message()
 async def handle_time(msg: types.Message, state: FSMContext):
     """
-    Умный разбор времени:
+    Умный разбор времени + логирование результата в CSV:
     - поддержка: "22 10", "в 22 10", "22:10", "22-10", "22.10",
                  "в 9 вечера в 53 минуты", "в 9 часов 53 минуты",
                  "в 7", "в 7 вечера", "завтра в 7 05", "через 15 минут" и т.п.
     - если указаны только часы/минуты и получилось время "в прошлом" — перенос на завтра.
     - если текущий час уже после полудня и указан час < 12 без периода — предполагаем вечер (PM).
+    - каждый ввод логируется в time_parse_log.csv (user_id, текст, распознанное время).
     """
     data = await state.get_data()
     file_id = data.get("file_id")
@@ -161,7 +359,7 @@ async def handle_time(msg: types.Message, state: FSMContext):
     matched_explicit_hm = False
 
     # --- нормализация и извлечение сдвига дня ---
-    text = re.sub(r"[,\u00A0]+", " ", raw)  # запятые/неразрывные пробелы -> обычные пробелы
+    text = re.sub(r"[,\u00A0]+", " ", raw)  # запятые/неразрывные пробелы -> пробел
     text = re.sub(r"\s+", " ", text).strip()
 
     day_shift = 0
@@ -174,26 +372,20 @@ async def handle_time(msg: types.Message, state: FSMContext):
     def in_range(h: int, m: int) -> bool:
         return 0 <= h <= 23 and 0 <= m <= 59
 
-
     def apply_period(h: int, period: Optional[str]) -> int:
         if not period:
-            # если без периода и уже после полудня — предполагаем PM для 1..11
             if now.hour >= 12 and 1 <= h <= 11:
                 return (h % 12) + 12
             return h
         if period == "утра":
-            return 0 if h == 12 else h % 24  # 12 утра -> 00, остальное как есть (0..11)
+            return 0 if h == 12 else h % 24
         if period == "дня":
-            # 1..11 -> 13..23, 12 дня -> 12
             return 12 if h == 12 else (h % 12) + 12
         if period == "вечера":
-            # 1..11 -> 13..23, 12 вечера трактуем как 00 следующего дня — редкий случай, оставим 12->0 ниже общим правилом
             return 12 if h == 12 else (h % 12) + 12
         if period == "ночи":
-            # обычно 0..5 — ночь; 12 ночи -> 00
             return 0 if h == 12 else h % 24
         return h
-
 
     def build_dt(h: int, m: int, period: Optional[str]) -> Optional[datetime]:
         nonlocal matched_explicit_hm
@@ -201,17 +393,13 @@ async def handle_time(msg: types.Message, state: FSMContext):
             return None
         h24 = apply_period(h, period)
         dt = now.replace(hour=h24, minute=m, second=0, microsecond=0)
-        # первичный сдвиг по ключевым словам (сегодня/завтра/послезавтра)
         if day_shift:
             dt = dt + pd.Timedelta(days=day_shift)
-        # если явный формат часов/минут и всё равно получилось "в прошлом" — переносим на следующие сутки
         if matched_explicit_hm and day_shift == 0 and dt <= now:
             dt = dt + pd.Timedelta(days=1)
         return dt
 
-
     # --- 1) явные "часы минуты" с любым разделителем и с/без "в" ---
-    # примеры: "22 10", "в 22 10", "22:10", "22-10", "22.10"
     m = re.match(r"^(?:в\s*)?(\d{1,2})\s*[:.\-\s]\s*(\d{1,2})\s*(утра|дня|вечера|ночи)?$", text)
     if m:
         h = int(m.group(1))
@@ -221,11 +409,10 @@ async def handle_time(msg: types.Message, state: FSMContext):
             matched_explicit_hm = True
             run_at = build_dt(h, minute, period)
 
-
-    # --- 2) "в X [утра|дня|вечера|ночи] в Y минут(ы)" или "... Y" ---
+    # --- 2) "в X [утра|дня|вечера|ночи] (в Y минут[ы])" ---
     if not run_at:
         m2 = re.match(
-            r"^в\s*(\d{1,2})\s*(утра|дня|вечера|ночи)?(?:\s*в\s*(\d{1,2})\s*(?:мин(?:ут[ы])?|м)?)?$",
+            r"^в\s*(\d{1,2})\s*(утра|дня|вечера|ночи)?(?:\s*в\s*(\d{1,2})(?:\s*мин(?:ут[ы])?|м)?)?$",
             text
         )
         if m2:
@@ -261,7 +448,7 @@ async def handle_time(msg: types.Message, state: FSMContext):
                 matched_explicit_hm = True
                 run_at = build_dt(h, minute, period)
 
-    # --- 5) свободные формулировки — отдаём dateparser полностью исходный текст ---
+    # --- 5) dateparser как fallback ---
     if not run_at:
         parsed = dateparser.parse(
             raw,
@@ -271,7 +458,9 @@ async def handle_time(msg: types.Message, state: FSMContext):
         if parsed:
             run_at = parsed
 
-    # итоговая проверка
+    # логируем попытку распознавания (успех/неуспех)
+    log_time_parse(msg.from_user.id, raw, run_at if run_at and run_at > now else None)
+
     if not run_at or run_at <= now:
         return await msg.answer(phrases["time_error"])
 
@@ -312,34 +501,26 @@ def log_time_parse(user_id: int, input_text: str, recognized: Optional[datetime]
 @dp.callback_query(F.data == "time_confirm")
 async def cb_time_confirm(cb: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    file_id = data.get("file_id")
-    media_type = data.get("media_type") or "video"
-    pending_iso = data.get("pending_run_at")
-    if not (file_id and pending_iso):
-        await cb.message.edit_reply_markup(reply_markup=None)
-        return await cb.answer("Нечего подтверждать", show_alert=True)
-
-    run_at = datetime.fromisoformat(pending_iso)
-
-    # создаём запись и планируем
-    alert_id = add_alert(cb.from_user.id, run_at, file_id, media_type)
-    schedule_job(alert_id, cb.from_user.id, run_at)
-
+    mode = data.get("mode") or "once"
     await cb.message.edit_reply_markup(reply_markup=None)
-    await cb.message.answer(phrases["scheduled"].format(when=run_at.strftime("%Y-%m-%d %H:%M")))
-    # очищаем только pending_run_at (медиа оставим? — можно очистить всё)
-    await state.clear()
-    await cb.answer()
 
+    # дальше в обоих режимах попросим ИМЯ и дадим кнопку "Пропустить"
+    await state.update_data(awaiting_name=True)
+    # phrases["ask_name"] = "Как назвать уведомление? (до 100 символов). Или нажми «Пропустить»."
+    await cb.message.answer(phrases["ask_name"], reply_markup=skip_name_kb())
+    await cb.answer()
 
 @dp.callback_query(F.data == "time_redo")
 async def cb_time_redo(cb: types.CallbackQuery, state: FSMContext):
-    # удаляем только pending_run_at, чтобы пользователь заново ввёл время
     data = await state.get_data()
-    await state.update_data(pending_run_at=None, file_id=data.get("file_id"), media_type=data.get("media_type"))
+    mode = data.get("mode") or "once"
     await cb.message.edit_reply_markup(reply_markup=None)
-    await cb.message.answer(phrases["ask_time"])
+    if mode == "recurring":
+        await cb.message.answer(phrases["ask_recur_text"])
+    else:
+        await cb.message.answer(phrases["ask_time"])
     await cb.answer()
+
 
 
 # --- Отправка медиа и очистка записи -----------------------------------------
