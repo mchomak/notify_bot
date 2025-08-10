@@ -206,3 +206,654 @@ json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
 2025-08-09 23:40:00.141 | DEBUG    | __main__:save_alerts:96 - Saving 0 alerts to CSV...
 2025-08-09 23:40:00.141 | DEBUG    | __main__:save_alerts:98 - CSV saved.
 2025-08-09 23:40:00.142 | DEBUG    | __main__:remove_alert:120 - Removed. Before=1, After=0
+2025-08-10 18:19:04.923 | DEBUG    | __main__:<module>:33 - Logger initialized. Starting bot setup...
+2025-08-10 18:19:05.331 | DEBUG    | __main__:<module>:40 - Bot, Dispatcher, Scheduler, OpenAI client created.
+2025-08-10 18:19:05.332 | DEBUG    | __main__:main:502 - Starting scheduler...
+2025-08-10 18:19:05.332 | DEBUG    | tools:ensure_csv:19 - Ensuring CSV exists at: notifications.csv
+2025-08-10 18:19:05.338 | DEBUG    | tools:ensure_csv:22 - CSV file exists.
+2025-08-10 18:19:05.344 | DEBUG    | __main__:main:505 - Restoring scheduled jobs from CSV...
+2025-08-10 18:19:05.344 | DEBUG    | tools:restore_jobs_from_csv:140 - Restoring jobs from CSV ...
+2025-08-10 18:19:05.344 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 18:19:05.353 | DEBUG    | tools:load_alerts:54 - Loaded 0 alerts.
+2025-08-10 18:19:05.353 | DEBUG    | tools:restore_jobs_from_csv:195 - Restore finished.
+2025-08-10 18:19:05.353 | DEBUG    | __main__:main:507 - Start polling...
+2025-08-10 18:19:05.704 | DEBUG    | __main__:new_alert:343 - New notification requested by user_id=764086738
+2025-08-10 18:19:05.705 | DEBUG    | __main__:list_alerts:382 - Listing alerts for user_id=764086738
+2025-08-10 18:19:05.705 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 18:19:05.708 | DEBUG    | tools:load_alerts:54 - Loaded 0 alerts.
+2025-08-10 18:19:05.708 | DEBUG    | __main__:list_alerts:386 - No alerts for user_id=764086738
+2025-08-10 18:19:58.608 | DEBUG    | __main__:new_alert:343 - New notification requested by user_id=1132147659
+2025-08-10 18:20:08.065 | DEBUG    | __main__:handle_video:351 - Received media from user_id=1132147659, media_type=video_note, file_id=DQACAgIAAxkBAAPuaJi4q1KAoXTsD1d1rJB_s__tfqYAAiWJAAKodslIcpYrVZejHxw2BA
+2025-08-10 18:20:13.225 | DEBUG    | __main__:cb_kind_one_time:365 - User 1132147659 chose ONE_TIME
+2025-08-10 18:20:21.289 | DEBUG    | __main__:handle_message:417 - handle_message user_id=1132147659 text='В 18:25' state_keys=['file_id', 'media_type', 'pending_kind', 'pending_run_at', 'pending_interval', 'awaiting_title']
+2025-08-10 18:20:21.289 | DEBUG    | __main__:handle_time_parse_and_confirm:84 - handle_time_parse_and_confirm user_id=1132147659 raw='в 18:25'
+2025-08-10 18:20:21.290 | DEBUG    | __main__:handle_time_parse_and_confirm:98 - Normalized text='в 18:25' day_shift=0
+2025-08-10 18:20:21.290 | DEBUG    | __main__:handle_time_parse_and_confirm:134 - Pattern #1 matched: h=18, m=25, period=None
+2025-08-10 18:20:21.290 | DEBUG    | tools:log_time_parse:199 - Logging time parse: user_id=1132147659, input='в 18:25', recognized=2025-08-10 18:25:00
+2025-08-10 18:20:21.297 | DEBUG    | __main__:handle_time_parse_and_confirm:194 - Time parsed OK for user_id=1132147659, run_at=2025-08-10 18:25:00
+2025-08-10 18:20:23.769 | DEBUG    | __main__:cb_time_confirm:456 - time_confirm by user_id=1132147659
+2025-08-10 18:20:26.949 | DEBUG    | __main__:cb_title_enter:487 - title_enter by user_id=1132147659
+2025-08-10 18:20:28.504 | DEBUG    | __main__:handle_message:417 - handle_message user_id=1132147659 text='Грут' state_keys=['file_id', 'media_type', 'pending_kind', 'pending_run_at', 'pending_interval', 'awaiting_title']
+2025-08-10 18:20:28.505 | DEBUG    | __main__:handle_message:425 - Received title from user_id=1132147659, title='Грут'
+2025-08-10 18:20:28.505 | DEBUG    | __main__:finalize_and_save_alert:212 - finalize_and_save_alert user_id=1132147659 kind=one_time title='Грут'
+2025-08-10 18:20:28.506 | DEBUG    | tools:add_alert_row:63 - Adding alert row: {'user_id': 1132147659, 'created_at': datetime.datetime(2025, 8, 10, 18, 20, 28, 506490), 'send_at': datetime.datetime(2025, 8, 10, 18, 25), 'file_id': 'DQACAgIAAxkBAAPuaJi4q1KAoXTsD1d1rJB_s__tfqYAAiWJAAKodslIcpYrVZejHxw2BA', 'media_type': 'video_note', 'title': 'Грут', 'kind': 'one_time', 'times': '', 'days_of_week': '', 'window_start': '', 'window_end': '', 'interval_minutes': '', 'cron_expr': ''}
+2025-08-10 18:20:28.506 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 18:20:28.514 | DEBUG    | tools:load_alerts:54 - Loaded 0 alerts.
+2025-08-10 18:20:28.518 | DEBUG    | tools:save_alerts:58 - Saving 1 alerts to CSV...
+2025-08-10 18:20:28.532 | DEBUG    | tools:save_alerts:60 - CSV saved.
+2025-08-10 18:20:28.532 | DEBUG    | tools:add_alert_row:70 - Alert added with id=fe7e11da-a450-44c5-add4-81413cc6a327
+2025-08-10 18:20:28.533 | DEBUG    | tools:schedule_one_time:84 - Scheduling one-time alert_id=fe7e11da-a450-44c5-add4-81413cc6a327 at 2025-08-10T18:25:00
+2025-08-10 18:20:28.541 | DEBUG    | __main__:finalize_and_save_alert:238 - Saved ONE_TIME alert id=fe7e11da-a450-44c5-add4-81413cc6a327 for user_id=1132147659
+2025-08-10 18:20:32.252 | DEBUG    | __main__:new_alert:343 - New notification requested by user_id=1132147659
+2025-08-10 18:20:38.961 | DEBUG    | __main__:handle_video:351 - Received media from user_id=1132147659, media_type=video_note, file_id=DQACAgIAAxkBAAP6aJi4yldhBpd_oiuyWqmFHh5Rhl0AAiaJAAKodslI1xEOicaKxYk2BA
+2025-08-10 18:20:40.151 | DEBUG    | __main__:cb_kind_interval:373 - User 1132147659 chose INTERVAL
+2025-08-10 18:21:27.390 | DEBUG    | __main__:handle_message:417 - handle_message user_id=1132147659 text='Каждый день с 15 до 21 каждые 1.5 часа' state_keys=['file_id', 'media_type', 'pending_kind', 'pending_run_at', 'pending_interval', 'awaiting_title']
+2025-08-10 18:21:27.391 | DEBUG    | __main__:handle_message:436 - Parsing interval description via AI for user_id=1132147659
+2025-08-10 18:21:27.392 | DEBUG    | tools:parse_interval_with_ai:278 - AI interval parse request: Каждый день с 15 до 21 каждые 1.5 часа
+2025-08-10 18:21:33.968 | DEBUG    | tools:parse_interval_with_ai:293 - Raw AI response (truncated to 500 chars): ```json
+{
+  "kind": "window_interval",
+  "window": {
+    "start": "15:00",
+    "end": "21:00"
+  },
+  "interval_minutes": 90
+}
+```
+2025-08-10 18:21:33.968 | DEBUG    | tools:parse_interval_with_ai:299 - Extracted JSON payload (truncated to 500 chars): {
+  "kind": "window_interval",
+  "window": {
+    "start": "15:00",
+    "end": "21:00"
+  },
+  "interval_minutes": 90
+}
+2025-08-10 18:21:33.969 | DEBUG    | tools:parse_interval_with_ai:304 - JSON parsed OK as dict.
+2025-08-10 18:21:33.969 | DEBUG    | tools:normalize_interval_def:393 - Normalizing interval def: {'kind': 'window_interval', 'window': {'start': '15:00', 'end': '21:00'}, 'interval_minutes': 90}
+2025-08-10 18:21:33.970 | DEBUG    | tools:normalize_interval_def:432 - Normalized interval def OK: {'kind': 'window_interval', 'window': {'start': '15:00', 'end': '21:00'}, 'interval_minutes': 90}
+2025-08-10 18:21:33.970 | DEBUG    | __main__:handle_message:448 - Interval preview for user_id=1132147659: Ежедневно, окно 15:00–21:00 каждые 90 мин
+2025-08-10 18:21:45.195 | DEBUG    | __main__:cb_interval_confirm:472 - interval_confirm by user_id=1132147659
+2025-08-10 18:21:49.813 | DEBUG    | __main__:cb_title_enter:487 - title_enter by user_id=1132147659
+2025-08-10 18:21:50.808 | DEBUG    | __main__:handle_message:417 - handle_message user_id=1132147659 text='Кукиш' state_keys=['file_id', 'media_type', 'pending_kind', 'pending_run_at', 'pending_interval', 'awaiting_title']
+2025-08-10 18:21:50.808 | DEBUG    | __main__:handle_message:425 - Received title from user_id=1132147659, title='Кукиш'
+2025-08-10 18:21:50.809 | DEBUG    | __main__:finalize_and_save_alert:212 - finalize_and_save_alert user_id=1132147659 kind=interval title='Кукиш'
+2025-08-10 18:21:50.809 | DEBUG    | __main__:finalize_and_save_alert:243 - Saving INTERVAL kind='window_interval' def={'kind': 'window_interval', 'window': {'start': '15:00', 'end': '21:00'}, 'interval_minutes': 90}
+2025-08-10 18:21:50.809 | DEBUG    | tools:add_alert_row:63 - Adding alert row: {'user_id': 1132147659, 'created_at': datetime.datetime(2025, 8, 10, 18, 21, 50, 809359), 'send_at': '', 'file_id': 'DQACAgIAAxkBAAP6aJi4yldhBpd_oiuyWqmFHh5Rhl0AAiaJAAKodslI1xEOicaKxYk2BA', 'media_type': 'video_note', 'title': 'Кукиш', 'kind': 'window_interval', 'times': '', 'days_of_week': '', 'window_start': '15:00', 'window_end': '21:00', 'interval_minutes': 90, 'cron_expr': ''}
+2025-08-10 18:21:50.809 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 18:21:50.820 | DEBUG    | tools:load_alerts:54 - Loaded 1 alerts.
+2025-08-10 18:21:50.823 | DEBUG    | tools:save_alerts:58 - Saving 2 alerts to CSV...
+2025-08-10 18:21:50.834 | DEBUG    | tools:save_alerts:60 - CSV saved.
+2025-08-10 18:21:50.835 | DEBUG    | tools:add_alert_row:70 - Alert added with id=13c12ca3-a86c-4f78-8388-562edde595d1
+2025-08-10 18:21:50.835 | DEBUG    | tools:compute_times_in_window:124 - Computing times in window 15:00-21:00 step=90m
+2025-08-10 18:21:50.835 | DEBUG    | tools:compute_times_in_window:132 - Window times: ['15:00', '16:30', '18:00', '19:30', '21:00']
+2025-08-10 18:21:50.836 | DEBUG    | tools:schedule_many_cron_times:104 - Scheduling many CRON times for alert_id=13c12ca3-a86c-4f78-8388-562edde595d1, times=['15:00', '16:30', '18:00', '19:30', '21:00']
+2025-08-10 18:21:50.836 | DEBUG    | tools:schedule_cron:95 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__0 for 15:00
+2025-08-10 18:21:50.836 | DEBUG    | tools:schedule_cron:95 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__1 for 16:30
+2025-08-10 18:21:50.837 | DEBUG    | tools:schedule_cron:95 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__2 for 18:00
+2025-08-10 18:21:50.837 | DEBUG    | tools:schedule_cron:95 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__3 for 19:30
+2025-08-10 18:21:50.837 | DEBUG    | tools:schedule_cron:95 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__4 for 21:00
+2025-08-10 18:21:55.182 | DEBUG    | __main__:list_alerts:382 - Listing alerts for user_id=1132147659
+2025-08-10 18:21:55.183 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 18:21:55.196 | DEBUG    | tools:load_alerts:54 - Loaded 2 alerts.
+2025-08-10 18:25:00.015 | DEBUG    | tools:send_video_back:440 - send_video_back called for user_id=1132147659 alert_id=fe7e11da-a450-44c5-add4-81413cc6a327
+2025-08-10 18:25:00.016 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 18:25:00.026 | DEBUG    | tools:load_alerts:54 - Loaded 2 alerts.
+2025-08-10 18:25:00.028 | DEBUG    | tools:send_video_back:448 - Sending media_type=video_note file_id=DQACAgIAAxkBAAPuaJi4q1KAoXTsD1d1rJB_s__tfqYAAiWJAAKodslIcpYrVZejHxw2BA to user_id=1132147659
+2025-08-10 18:25:00.165 | DEBUG    | tools:send_video_back:458 - One-time alert sent, removing alert_id=fe7e11da-a450-44c5-add4-81413cc6a327
+2025-08-10 18:25:00.166 | DEBUG    | tools:remove_alert:74 - Removing alert id=fe7e11da-a450-44c5-add4-81413cc6a327
+2025-08-10 18:25:00.166 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 18:25:00.173 | DEBUG    | tools:load_alerts:54 - Loaded 2 alerts.
+2025-08-10 18:25:00.174 | DEBUG    | tools:save_alerts:58 - Saving 1 alerts to CSV...
+2025-08-10 18:25:00.177 | DEBUG    | tools:save_alerts:60 - CSV saved.
+2025-08-10 18:25:00.177 | DEBUG    | tools:remove_alert:80 - Removed. Before=2, After=1
+2025-08-10 18:26:32.443 | DEBUG    | __main__:new_alert:343 - New notification requested by user_id=1132147659
+2025-08-10 18:26:43.352 | DEBUG    | __main__:handle_video:351 - Received media from user_id=1132147659, media_type=video_note, file_id=DQACAgIAAxkBAAIBCWiYujZ907JupyGEdOmM13kjsPt4AAI8iQACqHbJSJ2_mOUzx7yjNgQ
+2025-08-10 18:27:06.267 | DEBUG    | __main__:cb_kind_one_time:365 - User 1132147659 chose ONE_TIME
+2025-08-10 18:27:54.614 | DEBUG    | __main__:handle_message:417 - handle_message user_id=1132147659 text='В 18.30' state_keys=['file_id', 'media_type', 'pending_kind', 'pending_run_at', 'pending_interval', 'awaiting_title']
+2025-08-10 18:27:54.615 | DEBUG    | __main__:handle_time_parse_and_confirm:84 - handle_time_parse_and_confirm user_id=1132147659 raw='в 18.30'
+2025-08-10 18:27:54.616 | DEBUG    | __main__:handle_time_parse_and_confirm:98 - Normalized text='в 18.30' day_shift=0
+2025-08-10 18:27:54.617 | DEBUG    | __main__:handle_time_parse_and_confirm:134 - Pattern #1 matched: h=18, m=30, period=None
+2025-08-10 18:27:54.617 | DEBUG    | tools:log_time_parse:199 - Logging time parse: user_id=1132147659, input='в 18.30', recognized=2025-08-10 18:30:00
+2025-08-10 18:27:54.619 | DEBUG    | __main__:handle_time_parse_and_confirm:194 - Time parsed OK for user_id=1132147659, run_at=2025-08-10 18:30:00
+2025-08-10 18:27:57.645 | DEBUG    | __main__:cb_time_confirm:456 - time_confirm by user_id=1132147659
+2025-08-10 18:29:02.193 | DEBUG    | __main__:cb_title_skip:495 - title_skip by user_id=1132147659
+2025-08-10 18:29:02.282 | DEBUG    | __main__:finalize_and_save_alert:212 - finalize_and_save_alert user_id=7864432050 kind=one_time title=''
+2025-08-10 18:29:02.282 | DEBUG    | tools:add_alert_row:63 - Adding alert row: {'user_id': 7864432050, 'created_at': datetime.datetime(2025, 8, 10, 18, 29, 2, 282506), 'send_at': datetime.datetime(2025, 8, 10, 18, 30), 'file_id': 'DQACAgIAAxkBAAIBCWiYujZ907JupyGEdOmM13kjsPt4AAI8iQACqHbJSJ2_mOUzx7yjNgQ', 'media_type': 'video_note', 'title': '', 'kind': 'one_time', 'times': '', 'days_of_week': '', 'window_start': '', 'window_end': '', 'interval_minutes': '', 'cron_expr': ''}
+2025-08-10 18:29:02.283 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 18:29:02.298 | DEBUG    | tools:load_alerts:54 - Loaded 1 alerts.
+2025-08-10 18:29:02.301 | DEBUG    | tools:save_alerts:58 - Saving 2 alerts to CSV...
+2025-08-10 18:29:02.303 | DEBUG    | tools:save_alerts:60 - CSV saved.
+2025-08-10 18:29:02.304 | DEBUG    | tools:add_alert_row:70 - Alert added with id=52f53cb4-c3ec-4c3c-ac50-399b58aad858
+2025-08-10 18:29:02.304 | DEBUG    | tools:schedule_one_time:84 - Scheduling one-time alert_id=52f53cb4-c3ec-4c3c-ac50-399b58aad858 at 2025-08-10T18:30:00
+2025-08-10 18:29:02.305 | DEBUG    | __main__:finalize_and_save_alert:238 - Saved ONE_TIME alert id=52f53cb4-c3ec-4c3c-ac50-399b58aad858 for user_id=7864432050
+2025-08-10 18:30:00.008 | DEBUG    | tools:send_video_back:440 - send_video_back called for user_id=7864432050 alert_id=52f53cb4-c3ec-4c3c-ac50-399b58aad858
+2025-08-10 18:30:00.008 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 18:30:00.027 | DEBUG    | tools:load_alerts:54 - Loaded 2 alerts.
+2025-08-10 18:30:00.034 | DEBUG    | tools:send_video_back:448 - Sending media_type=video_note file_id=DQACAgIAAxkBAAIBCWiYujZ907JupyGEdOmM13kjsPt4AAI8iQACqHbJSJ2_mOUzx7yjNgQ to user_id=7864432050
+2025-08-10 18:30:00.155 | ERROR    | tools:send_video_back:455 - send_video_back failed for alert_id=52f53cb4-c3ec-4c3c-ac50-399b58aad858: Telegram server says - Forbidden: bots can't send messages to bots
+Traceback (most recent call last):
+
+  File "c:\Users\McHomak\Projects\notify_bot\main.py", line 512, in <module>
+    asyncio.run(main())
+    │       │   └ <function main at 0x00000292878E5260>
+    │       └ <function run at 0x00000292726B9120>
+    └ <module 'asyncio' from 'C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\...
+
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           │      │   └ <coroutine object main at 0x000002928788B5E0>
+           │      └ <function Runner.run at 0x0000029272724CC0>
+           └ <asyncio.runners.Runner object at 0x00000292878DBBD0>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<main() running at c:\Users\McHomak\Projects\notify_bot\main.py:508> wait_for=<Future pendin...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x00000292727228E0>
+           │    └ <ProactorEventLoop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x00000292878DBBD0>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 641, in run_until_complete
+    self.run_forever()
+    │    └ <function ProactorEventLoop.run_forever at 0x00000292727E2340>
+    └ <ProactorEventLoop running=True closed=False debug=False>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\windows_events.py", line 321, in run_forever
+    super().run_forever()
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 608, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x0000029272724680>
+    └ <ProactorEventLoop running=True closed=False debug=False>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 1936, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x000002927266A980>
+    └ <Handle Task.task_wakeup(<Future finished result=None>)>
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\Lib\asyncio\events.py", line 84, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle Task.task_wakeup(<Future finished result=None>)>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle Task.task_wakeup(<Future finished result=None>)>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle Task.task_wakeup(<Future finished result=None>)>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\apscheduler\executors\base.py", line 181, in run_coroutine_job
+    retval = await job.func(*job.args, **job.kwargs)
+                   │   │     │   │       │   └ <member 'kwargs' of 'Job' objects>
+                   │   │     │   │       └ <Job (id=52f53cb4-c3ec-4c3c-ac50-399b58aad858 name=send_video_back)>
+                   │   │     │   └ <member 'args' of 'Job' objects>
+                   │   │     └ <Job (id=52f53cb4-c3ec-4c3c-ac50-399b58aad858 name=send_video_back)>
+                   │   └ <member 'func' of 'Job' objects>
+                   └ <Job (id=52f53cb4-c3ec-4c3c-ac50-399b58aad858 name=send_video_back)>
+
+> File "c:\Users\McHomak\Projects\notify_bot\tools.py", line 451, in send_video_back
+    await bot.send_video_note(chat_id=user_id, video_note=file_id)
+          │   │                       │                   └ 'DQACAgIAAxkBAAIBCWiYujZ907JupyGEdOmM13kjsPt4AAI8iQACqHbJSJ2_mOUzx7yjNgQ'
+          │   │                       └ 7864432050
+          │   └ <function Bot.send_video_note at 0x00000292873A9940>
+          └ <aiogram.client.bot.Bot object at 0x0000029287565590>
+
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\client\bot.py", line 3299, in send_video_note
+    return await self(call, request_timeout=request_timeout)
+                 │    │                     └ None
+                 │    └ SendVideoNote(chat_id=7864432050, video_note='DQACAgIAAxkBAAIBCWiYujZ907JupyGEdOmM13kjsPt4AAI8iQACqHbJSJ2_mOUzx7yjNgQ', busin...
+                 └ <aiogram.client.bot.Bot object at 0x0000029287565590>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\client\bot.py", line 482, in __call__
+    return await self.session(self, method, timeout=request_timeout)
+                 │    │       │     │               └ None
+                 │    │       │     └ SendVideoNote(chat_id=7864432050, video_note='DQACAgIAAxkBAAIBCWiYujZ907JupyGEdOmM13kjsPt4AAI8iQACqHbJSJ2_mOUzx7yjNgQ', busin...
+                 │    │       └ <aiogram.client.bot.Bot object at 0x0000029287565590>
+                 │    └ <aiogram.client.session.aiohttp.AiohttpSession object at 0x00000292872E8A90>
+                 └ <aiogram.client.bot.Bot object at 0x0000029287565590>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\client\session\base.py", line 254, in __call__
+    return cast(TelegramType, await middleware(bot, method))
+           │    │                   │          │    └ SendVideoNote(chat_id=7864432050, video_note='DQACAgIAAxkBAAIBCWiYujZ907JupyGEdOmM13kjsPt4AAI8iQACqHbJSJ2_mOUzx7yjNgQ', busin...
+           │    │                   │          └ <aiogram.client.bot.Bot object at 0x0000029287565590>
+           │    │                   └ functools.partial(<bound method AiohttpSession.make_request of <aiogram.client.session.aiohttp.AiohttpSession object at 0x000...
+           │    └ ~TelegramType
+           └ <function cast at 0x00000292726F4EA0>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\client\session\aiohttp.py", line 185, in make_request
+    response = self.check_response(
+               │    └ <function BaseSession.check_response at 0x00000292838F7880>
+               └ <aiogram.client.session.aiohttp.AiohttpSession object at 0x00000292872E8A90>
+  File "C:\Users\McHomak\Projects\notify_bot\.venv\Lib\site-packages\aiogram\client\session\base.py", line 128, in check_response
+    raise TelegramForbiddenError(method=method, message=description)
+          │                             │               └ "Forbidden: bots can't send messages to bots"
+          │                             └ SendVideoNote(chat_id=7864432050, video_note='DQACAgIAAxkBAAIBCWiYujZ907JupyGEdOmM13kjsPt4AAI8iQACqHbJSJ2_mOUzx7yjNgQ', busin...
+          └ <class 'aiogram.exceptions.TelegramForbiddenError'>
+
+aiogram.exceptions.TelegramForbiddenError: Telegram server says - Forbidden: bots can't send messages to bots
+2025-08-10 18:30:00.196 | DEBUG    | tools:send_video_back:458 - One-time alert sent, removing alert_id=52f53cb4-c3ec-4c3c-ac50-399b58aad858
+2025-08-10 18:30:00.197 | DEBUG    | tools:remove_alert:74 - Removing alert id=52f53cb4-c3ec-4c3c-ac50-399b58aad858
+2025-08-10 18:30:00.197 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 18:30:00.203 | DEBUG    | tools:load_alerts:54 - Loaded 2 alerts.
+2025-08-10 18:30:00.205 | DEBUG    | tools:save_alerts:58 - Saving 1 alerts to CSV...
+2025-08-10 18:30:00.208 | DEBUG    | tools:save_alerts:60 - CSV saved.
+2025-08-10 18:30:00.208 | DEBUG    | tools:remove_alert:80 - Removed. Before=2, After=1
+2025-08-10 18:30:40.747 | DEBUG    | __main__:list_alerts:382 - Listing alerts for user_id=1132147659
+2025-08-10 18:30:40.747 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 18:30:40.754 | DEBUG    | tools:load_alerts:54 - Loaded 1 alerts.
+2025-08-10 23:19:35.847 | DEBUG    | __main__:<module>:34 - Logger initialized. Starting bot setup...
+2025-08-10 23:19:36.240 | DEBUG    | __main__:<module>:41 - Bot, Dispatcher, Scheduler, OpenAI client created.
+2025-08-10 23:19:36.241 | DEBUG    | __main__:main:556 - Starting scheduler...
+2025-08-10 23:19:36.242 | DEBUG    | tools:ensure_csv:18 - Ensuring CSV exists at: notifications.csv
+2025-08-10 23:19:36.242 | DEBUG    | tools:ensure_csv:21 - CSV file exists.
+2025-08-10 23:19:36.243 | DEBUG    | __main__:main:559 - Restoring scheduled jobs from CSV...
+2025-08-10 23:19:36.243 | DEBUG    | tools:restore_jobs_from_csv:153 - Restoring jobs from CSV ...
+2025-08-10 23:19:36.243 | DEBUG    | tools:load_alerts:30 - Loading alerts from CSV...
+2025-08-10 23:19:36.266 | DEBUG    | tools:load_alerts:53 - Column 'src_chat_id' not found in CSV. Adding empty column.
+2025-08-10 23:19:36.267 | DEBUG    | tools:load_alerts:53 - Column 'src_message_id' not found in CSV. Adding empty column.
+2025-08-10 23:19:36.267 | DEBUG    | tools:load_alerts:53 - Column 'content_type' not found in CSV. Adding empty column.
+2025-08-10 23:19:36.267 | DEBUG    | tools:load_alerts:55 - Loaded 1 alerts.
+2025-08-10 23:19:36.268 | DEBUG    | tools:restore_jobs_from_csv:160 - Restoring alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 kind=window_interval
+2025-08-10 23:19:36.268 | DEBUG    | tools:compute_times_in_window:137 - Computing times in window 15:00-21:00 step=90m
+2025-08-10 23:19:36.268 | DEBUG    | tools:compute_times_in_window:145 - Window times: ['15:00', '16:30', '18:00', '19:30', '21:00']
+2025-08-10 23:19:36.268 | DEBUG    | tools:schedule_many_cron_times:117 - Scheduling many CRON times for alert_id=13c12ca3-a86c-4f78-8388-562edde595d1, times=['15:00', '16:30', '18:00', '19:30', '21:00']
+2025-08-10 23:19:36.269 | DEBUG    | tools:schedule_cron:108 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__0 for 15:00
+2025-08-10 23:19:36.269 | DEBUG    | tools:schedule_cron:108 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__1 for 16:30
+2025-08-10 23:19:36.269 | DEBUG    | tools:schedule_cron:108 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__2 for 18:00
+2025-08-10 23:19:36.270 | DEBUG    | tools:schedule_cron:108 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__3 for 19:30
+2025-08-10 23:19:36.270 | DEBUG    | tools:schedule_cron:108 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__4 for 21:00
+2025-08-10 23:19:36.271 | DEBUG    | tools:restore_jobs_from_csv:208 - Restore finished.
+2025-08-10 23:19:36.271 | DEBUG    | __main__:main:561 - Start polling...
+2025-08-10 23:40:32.659 | DEBUG    | __main__:<module>:34 - Logger initialized. Starting bot setup...
+2025-08-10 23:40:33.221 | DEBUG    | __main__:<module>:41 - Bot, Dispatcher, Scheduler, OpenAI client created.
+2025-08-10 23:40:33.223 | DEBUG    | __main__:main:609 - Starting scheduler...
+2025-08-10 23:40:33.223 | DEBUG    | tools:ensure_csv:19 - Ensuring CSV exists at: notifications.csv
+2025-08-10 23:40:33.228 | DEBUG    | tools:ensure_csv:22 - CSV file exists.
+2025-08-10 23:40:33.233 | DEBUG    | __main__:main:612 - Restoring scheduled jobs from CSV...
+2025-08-10 23:40:33.234 | DEBUG    | tools:restore_jobs_from_csv:159 - Restoring jobs from CSV ...
+2025-08-10 23:40:33.234 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:40:33.243 | DEBUG    | tools:load_alerts:53 - Column 'src_chat_id' not found in CSV. Adding empty column.
+2025-08-10 23:40:33.244 | DEBUG    | tools:load_alerts:53 - Column 'src_message_id' not found in CSV. Adding empty column.
+2025-08-10 23:40:33.244 | DEBUG    | tools:load_alerts:53 - Column 'content_type' not found in CSV. Adding empty column.
+2025-08-10 23:40:33.245 | DEBUG    | tools:load_alerts:58 - Loaded 1 alerts.
+2025-08-10 23:40:33.246 | DEBUG    | tools:restore_jobs_from_csv:166 - Restoring alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 kind=window_interval
+2025-08-10 23:40:33.246 | DEBUG    | tools:compute_times_in_window:143 - Computing times in window 15:00-21:00 step=90m
+2025-08-10 23:40:33.246 | DEBUG    | tools:compute_times_in_window:151 - Window times: ['15:00', '16:30', '18:00', '19:30', '21:00']
+2025-08-10 23:40:33.247 | DEBUG    | tools:schedule_many_cron_times:123 - Scheduling many CRON times for alert_id=13c12ca3-a86c-4f78-8388-562edde595d1, times=['15:00', '16:30', '18:00', '19:30', '21:00']
+2025-08-10 23:40:33.247 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__0 for 15:00
+2025-08-10 23:40:33.247 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__1 for 16:30
+2025-08-10 23:40:33.247 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__2 for 18:00
+2025-08-10 23:40:33.248 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__3 for 19:30
+2025-08-10 23:40:33.248 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 job_id=13c12ca3-a86c-4f78-8388-562edde595d1__cron__4 for 21:00
+2025-08-10 23:40:33.248 | DEBUG    | tools:restore_jobs_from_csv:214 - Restore finished.
+2025-08-10 23:40:33.248 | DEBUG    | __main__:main:614 - Start polling...
+2025-08-10 23:40:38.677 | DEBUG    | __main__:new_alert:409 - New notification requested by user_id=1132147659
+2025-08-10 23:40:52.410 | DEBUG    | __main__:handle_message:545 - handle_message user_id=1132147659 expected=await_media text='Вставай !' ct=ContentType.TEXT
+2025-08-10 23:40:55.095 | DEBUG    | __main__:cb_kind_one_time:479 - User 1132147659 chose ONE_TIME
+2025-08-10 23:41:01.813 | DEBUG    | __main__:handle_message:545 - handle_message user_id=1132147659 expected=await_time text='23 45' ct=ContentType.TEXT
+2025-08-10 23:41:01.813 | DEBUG    | __main__:handle_time_parse_and_confirm:158 - handle_time_parse_and_confirm user_id=1132147659 raw='23 45'
+2025-08-10 23:41:01.813 | DEBUG    | __main__:handle_time_parse_and_confirm:172 - Normalized text='23 45' day_shift=0
+2025-08-10 23:41:01.814 | DEBUG    | __main__:handle_time_parse_and_confirm:208 - Pattern #1 matched: h=23, m=45, period=None
+2025-08-10 23:41:01.814 | DEBUG    | tools:log_time_parse:218 - Logging time parse: user_id=1132147659, input='23 45', recognized=2025-08-10 23:45:00
+2025-08-10 23:41:01.824 | DEBUG    | __main__:handle_time_parse_and_confirm:269 - Time parsed OK for user_id=1132147659, run_at=2025-08-10 23:45:00
+2025-08-10 23:41:06.499 | DEBUG    | __main__:cb_time_confirm:496 - time_confirm by user_id=1132147659
+2025-08-10 23:41:12.365 | DEBUG    | __main__:cb_title_enter:528 - title_enter by user_id=1132147659
+2025-08-10 23:41:19.057 | DEBUG    | __main__:handle_message:545 - handle_message user_id=1132147659 expected=await_title_input text='Напоминалка' ct=ContentType.TEXT
+2025-08-10 23:41:19.211 | DEBUG    | __main__:finalize_and_save_alert:286 - finalize_and_save_alert user_id=1132147659 kind=one_time title='Напоминалка'
+2025-08-10 23:41:19.211 | DEBUG    | tools:add_alert_row:67 - Adding alert row: {'user_id': 1132147659, 'created_at': datetime.datetime(2025, 8, 10, 23, 41, 19, 211175), 'send_at': datetime.datetime(2025, 8, 10, 23, 45), 'file_id': '', 'payload_text': 'Вставай !', 'media_type': 'text', 'title': 'Напоминалка', 'kind': 'one_time', 'times': '', 'days_of_week': '', 'window_start': '', 'window_end': '', 'interval_minutes': '', 'cron_expr': ''}
+2025-08-10 23:41:19.211 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:41:19.217 | DEBUG    | tools:load_alerts:53 - Column 'src_chat_id' not found in CSV. Adding empty column.
+2025-08-10 23:41:19.218 | DEBUG    | tools:load_alerts:53 - Column 'src_message_id' not found in CSV. Adding empty column.
+2025-08-10 23:41:19.219 | DEBUG    | tools:load_alerts:53 - Column 'content_type' not found in CSV. Adding empty column.
+2025-08-10 23:41:19.221 | DEBUG    | tools:load_alerts:58 - Loaded 1 alerts.
+2025-08-10 23:41:19.224 | DEBUG    | tools:save_alerts:62 - Saving 2 alerts to CSV...
+2025-08-10 23:41:19.237 | DEBUG    | tools:save_alerts:64 - CSV saved.
+2025-08-10 23:41:19.237 | DEBUG    | tools:add_alert_row:74 - Alert added with id=64c4f925-2d46-4081-b40f-263b71b3009d
+2025-08-10 23:41:19.238 | DEBUG    | tools:schedule_one_time:103 - Scheduling one-time alert_id=64c4f925-2d46-4081-b40f-263b71b3009d at 2025-08-10T23:45:00
+2025-08-10 23:41:19.245 | DEBUG    | __main__:finalize_and_save_alert:312 - Saved ONE_TIME alert id=64c4f925-2d46-4081-b40f-263b71b3009d for user_id=1132147659
+2025-08-10 23:41:30.602 | DEBUG    | __main__:list_alerts_handler:417 - Listing alerts for user_id=1132147659
+2025-08-10 23:41:30.603 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:41:30.620 | DEBUG    | tools:load_alerts:58 - Loaded 2 alerts.
+2025-08-10 23:41:46.892 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:41:46.903 | DEBUG    | tools:load_alerts:58 - Loaded 2 alerts.
+2025-08-10 23:41:48.456 | DEBUG    | tools:unschedule_alert:99 - unschedule_alert: alert_id=13c12ca3-a86c-4f78-8388-562edde595d1 removed_jobs=5
+2025-08-10 23:41:48.457 | DEBUG    | tools:remove_alert:78 - Removing alert id=13c12ca3-a86c-4f78-8388-562edde595d1
+2025-08-10 23:41:48.457 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:41:48.460 | DEBUG    | tools:load_alerts:58 - Loaded 2 alerts.
+2025-08-10 23:41:48.460 | DEBUG    | tools:save_alerts:62 - Saving 1 alerts to CSV...
+2025-08-10 23:41:48.462 | DEBUG    | tools:save_alerts:64 - CSV saved.
+2025-08-10 23:41:48.462 | DEBUG    | tools:remove_alert:84 - Removed. Before=2, After=1
+2025-08-10 23:41:48.462 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:41:48.470 | DEBUG    | tools:load_alerts:58 - Loaded 1 alerts.
+2025-08-10 23:41:50.846 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:41:50.851 | DEBUG    | tools:load_alerts:58 - Loaded 1 alerts.
+2025-08-10 23:41:53.388 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:41:53.394 | DEBUG    | tools:load_alerts:58 - Loaded 1 alerts.
+2025-08-10 23:41:56.199 | DEBUG    | __main__:new_alert:409 - New notification requested by user_id=1132147659
+2025-08-10 23:42:12.387 | DEBUG    | __main__:handle_message:545 - handle_message user_id=1132147659 expected=await_media text='None' ct=ContentType.VIDEO_NOTE
+2025-08-10 23:42:14.109 | DEBUG    | __main__:cb_kind_interval:487 - User 1132147659 chose INTERVAL
+2025-08-10 23:42:22.680 | DEBUG    | __main__:handle_message:545 - handle_message user_id=1132147659 expected=await_interval text='Каждые 5 минут' ct=ContentType.TEXT
+2025-08-10 23:42:22.680 | DEBUG    | tools:parse_interval_with_ai:298 - AI interval parse request: Каждые 5 минут
+2025-08-10 23:42:30.967 | DEBUG    | tools:parse_interval_with_ai:313 - Raw AI response (truncated to 500 chars): ```json
+{
+  "kind": "window_interval",
+  "window": {
+    "start": "00:00",
+    "end": "23:59"
+  },
+  "interval_minutes": 5
+}
+```
+2025-08-10 23:42:30.968 | DEBUG    | tools:parse_interval_with_ai:319 - Extracted JSON payload (truncated to 500 chars): {
+  "kind": "window_interval",
+  "window": {
+    "start": "00:00",
+    "end": "23:59"
+  },
+  "interval_minutes": 5
+}
+2025-08-10 23:42:30.968 | DEBUG    | tools:parse_interval_with_ai:324 - JSON parsed OK as dict.
+2025-08-10 23:42:30.968 | DEBUG    | tools:normalize_interval_def:474 - Normalizing interval def: {'kind': 'window_interval', 'window': {'start': '00:00', 'end': '23:59'}, 'interval_minutes': 5}
+2025-08-10 23:42:30.969 | DEBUG    | tools:normalize_interval_def:513 - Normalized interval def OK: {'kind': 'window_interval', 'window': {'start': '00:00', 'end': '23:59'}, 'interval_minutes': 5}
+2025-08-10 23:42:36.331 | DEBUG    | __main__:cb_interval_confirm:512 - interval_confirm by user_id=1132147659
+2025-08-10 23:42:42.882 | DEBUG    | __main__:cb_title_enter:528 - title_enter by user_id=1132147659
+2025-08-10 23:42:43.942 | DEBUG    | __main__:handle_message:545 - handle_message user_id=1132147659 expected=await_title_input text='Губки 2' ct=ContentType.TEXT
+2025-08-10 23:42:44.037 | DEBUG    | __main__:finalize_and_save_alert:286 - finalize_and_save_alert user_id=1132147659 kind=interval title='Губки 2'
+2025-08-10 23:42:44.037 | DEBUG    | __main__:finalize_and_save_alert:317 - Saving INTERVAL kind='window_interval' def={'kind': 'window_interval', 'window': {'start': '00:00', 'end': '23:59'}, 'interval_minutes': 5}
+2025-08-10 23:42:44.037 | DEBUG    | tools:add_alert_row:67 - Adding alert row: {'user_id': 1132147659, 'created_at': datetime.datetime(2025, 8, 10, 23, 42, 44, 37808), 'send_at': '', 'file_id': 'DQACAgIAAxkBAAIBIGiZBCSdiBbjPwFagjw9ZoaCqg1OAAJAjQACqHbJSCWiKvDglhVkNgQ', 'payload_text': '', 'media_type': 'video_note', 'title': 'Губки 2', 'kind': 'window_interval', 'times': '', 'days_of_week': '', 'window_start': '00:00', 'window_end': '23:59', 'interval_minutes': 5, 'cron_expr': ''}
+2025-08-10 23:42:44.037 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:42:44.041 | DEBUG    | tools:load_alerts:58 - Loaded 1 alerts.
+2025-08-10 23:42:44.043 | DEBUG    | tools:save_alerts:62 - Saving 2 alerts to CSV...
+2025-08-10 23:42:44.045 | DEBUG    | tools:save_alerts:64 - CSV saved.
+2025-08-10 23:42:44.045 | DEBUG    | tools:add_alert_row:74 - Alert added with id=407c1aa9-262b-42b2-8e31-8f3ad5123f14
+2025-08-10 23:42:44.045 | DEBUG    | tools:compute_times_in_window:143 - Computing times in window 00:00-23:59 step=5m
+2025-08-10 23:42:44.047 | DEBUG    | tools:compute_times_in_window:151 - Window times: ['00:00', '00:05', '00:10', '00:15', '00:20', '00:25', '00:30', '00:35', '00:40', '00:45', '00:50', '00:55', '01:00', '01:05', '01:10', '01:15', '01:20', '01:25', '01:30', '01:35', '01:40', '01:45', '01:50', '01:55', '02:00', '02:05', '02:10', '02:15', '02:20', '02:25', '02:30', '02:35', '02:40', '02:45', '02:50', '02:55', '03:00', '03:05', '03:10', '03:15', '03:20', '03:25', '03:30', '03:35', '03:40', '03:45', '03:50', '03:55', '04:00', '04:05', '04:10', '04:15', '04:20', '04:25', '04:30', '04:35', '04:40', '04:45', '04:50', '04:55', '05:00', '05:05', '05:10', '05:15', '05:20', '05:25', '05:30', '05:35', '05:40', '05:45', '05:50', '05:55', '06:00', '06:05', '06:10', '06:15', '06:20', '06:25', '06:30', '06:35', '06:40', '06:45', '06:50', '06:55', '07:00', '07:05', '07:10', '07:15', '07:20', '07:25', '07:30', '07:35', '07:40', '07:45', '07:50', '07:55', '08:00', '08:05', '08:10', '08:15', '08:20', '08:25', '08:30', '08:35', '08:40', '08:45', '08:50', '08:55', '09:00', '09:05', '09:10', '09:15', '09:20', '09:25', '09:30', '09:35', '09:40', '09:45', '09:50', '09:55', '10:00', '10:05', '10:10', '10:15', '10:20', '10:25', '10:30', '10:35', '10:40', '10:45', '10:50', '10:55', '11:00', '11:05', '11:10', '11:15', '11:20', '11:25', '11:30', '11:35', '11:40', '11:45', '11:50', '11:55', '12:00', '12:05', '12:10', '12:15', '12:20', '12:25', '12:30', '12:35', '12:40', '12:45', '12:50', '12:55', '13:00', '13:05', '13:10', '13:15', '13:20', '13:25', '13:30', '13:35', '13:40', '13:45', '13:50', '13:55', '14:00', '14:05', '14:10', '14:15', '14:20', '14:25', '14:30', '14:35', '14:40', '14:45', '14:50', '14:55', '15:00', '15:05', '15:10', '15:15', '15:20', '15:25', '15:30', '15:35', '15:40', '15:45', '15:50', '15:55', '16:00', '16:05', '16:10', '16:15', '16:20', '16:25', '16:30', '16:35', '16:40', '16:45', '16:50', '16:55', '17:00', '17:05', '17:10', '17:15', '17:20', '17:25', '17:30', '17:35', '17:40', '17:45', '17:50', '17:55', '18:00', '18:05', '18:10', '18:15', '18:20', '18:25', '18:30', '18:35', '18:40', '18:45', '18:50', '18:55', '19:00', '19:05', '19:10', '19:15', '19:20', '19:25', '19:30', '19:35', '19:40', '19:45', '19:50', '19:55', '20:00', '20:05', '20:10', '20:15', '20:20', '20:25', '20:30', '20:35', '20:40', '20:45', '20:50', '20:55', '21:00', '21:05', '21:10', '21:15', '21:20', '21:25', '21:30', '21:35', '21:40', '21:45', '21:50', '21:55', '22:00', '22:05', '22:10', '22:15', '22:20', '22:25', '22:30', '22:35', '22:40', '22:45', '22:50', '22:55', '23:00', '23:05', '23:10', '23:15', '23:20', '23:25', '23:30', '23:35', '23:40', '23:45', '23:50', '23:55']
+2025-08-10 23:42:44.047 | DEBUG    | tools:schedule_many_cron_times:123 - Scheduling many CRON times for alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14, times=['00:00', '00:05', '00:10', '00:15', '00:20', '00:25', '00:30', '00:35', '00:40', '00:45', '00:50', '00:55', '01:00', '01:05', '01:10', '01:15', '01:20', '01:25', '01:30', '01:35', '01:40', '01:45', '01:50', '01:55', '02:00', '02:05', '02:10', '02:15', '02:20', '02:25', '02:30', '02:35', '02:40', '02:45', '02:50', '02:55', '03:00', '03:05', '03:10', '03:15', '03:20', '03:25', '03:30', '03:35', '03:40', '03:45', '03:50', '03:55', '04:00', '04:05', '04:10', '04:15', '04:20', '04:25', '04:30', '04:35', '04:40', '04:45', '04:50', '04:55', '05:00', '05:05', '05:10', '05:15', '05:20', '05:25', '05:30', '05:35', '05:40', '05:45', '05:50', '05:55', '06:00', '06:05', '06:10', '06:15', '06:20', '06:25', '06:30', '06:35', '06:40', '06:45', '06:50', '06:55', '07:00', '07:05', '07:10', '07:15', '07:20', '07:25', '07:30', '07:35', '07:40', '07:45', '07:50', '07:55', '08:00', '08:05', '08:10', '08:15', '08:20', '08:25', '08:30', '08:35', '08:40', '08:45', '08:50', '08:55', '09:00', '09:05', '09:10', '09:15', '09:20', '09:25', '09:30', '09:35', '09:40', '09:45', '09:50', '09:55', '10:00', '10:05', '10:10', '10:15', '10:20', '10:25', '10:30', '10:35', '10:40', '10:45', '10:50', '10:55', '11:00', '11:05', '11:10', '11:15', '11:20', '11:25', '11:30', '11:35', '11:40', '11:45', '11:50', '11:55', '12:00', '12:05', '12:10', '12:15', '12:20', '12:25', '12:30', '12:35', '12:40', '12:45', '12:50', '12:55', '13:00', '13:05', '13:10', '13:15', '13:20', '13:25', '13:30', '13:35', '13:40', '13:45', '13:50', '13:55', '14:00', '14:05', '14:10', '14:15', '14:20', '14:25', '14:30', '14:35', '14:40', '14:45', '14:50', '14:55', '15:00', '15:05', '15:10', '15:15', '15:20', '15:25', '15:30', '15:35', '15:40', '15:45', '15:50', '15:55', '16:00', '16:05', '16:10', '16:15', '16:20', '16:25', '16:30', '16:35', '16:40', '16:45', '16:50', '16:55', '17:00', '17:05', '17:10', '17:15', '17:20', '17:25', '17:30', '17:35', '17:40', '17:45', '17:50', '17:55', '18:00', '18:05', '18:10', '18:15', '18:20', '18:25', '18:30', '18:35', '18:40', '18:45', '18:50', '18:55', '19:00', '19:05', '19:10', '19:15', '19:20', '19:25', '19:30', '19:35', '19:40', '19:45', '19:50', '19:55', '20:00', '20:05', '20:10', '20:15', '20:20', '20:25', '20:30', '20:35', '20:40', '20:45', '20:50', '20:55', '21:00', '21:05', '21:10', '21:15', '21:20', '21:25', '21:30', '21:35', '21:40', '21:45', '21:50', '21:55', '22:00', '22:05', '22:10', '22:15', '22:20', '22:25', '22:30', '22:35', '22:40', '22:45', '22:50', '22:55', '23:00', '23:05', '23:10', '23:15', '23:20', '23:25', '23:30', '23:35', '23:40', '23:45', '23:50', '23:55']
+2025-08-10 23:42:44.049 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__0 for 00:00
+2025-08-10 23:42:44.049 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__1 for 00:05
+2025-08-10 23:42:44.049 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__2 for 00:10
+2025-08-10 23:42:44.050 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__3 for 00:15
+2025-08-10 23:42:44.050 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__4 for 00:20
+2025-08-10 23:42:44.051 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__5 for 00:25
+2025-08-10 23:42:44.051 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__6 for 00:30
+2025-08-10 23:42:44.051 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__7 for 00:35
+2025-08-10 23:42:44.052 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__8 for 00:40
+2025-08-10 23:42:44.052 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__9 for 00:45
+2025-08-10 23:42:44.053 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__10 for 00:50
+2025-08-10 23:42:44.053 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__11 for 00:55
+2025-08-10 23:42:44.053 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__12 for 01:00
+2025-08-10 23:42:44.054 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__13 for 01:05
+2025-08-10 23:42:44.054 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__14 for 01:10
+2025-08-10 23:42:44.055 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__15 for 01:15
+2025-08-10 23:42:44.055 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__16 for 01:20
+2025-08-10 23:42:44.056 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__17 for 01:25
+2025-08-10 23:42:44.056 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__18 for 01:30
+2025-08-10 23:42:44.057 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__19 for 01:35
+2025-08-10 23:42:44.057 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__20 for 01:40
+2025-08-10 23:42:44.058 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__21 for 01:45
+2025-08-10 23:42:44.058 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__22 for 01:50
+2025-08-10 23:42:44.059 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__23 for 01:55
+2025-08-10 23:42:44.060 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__24 for 02:00
+2025-08-10 23:42:44.060 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__25 for 02:05
+2025-08-10 23:42:44.061 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__26 for 02:10
+2025-08-10 23:42:44.061 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__27 for 02:15
+2025-08-10 23:42:44.062 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__28 for 02:20
+2025-08-10 23:42:44.062 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__29 for 02:25
+2025-08-10 23:42:44.063 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__30 for 02:30
+2025-08-10 23:42:44.064 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__31 for 02:35
+2025-08-10 23:42:44.064 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__32 for 02:40
+2025-08-10 23:42:44.065 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__33 for 02:45
+2025-08-10 23:42:44.065 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__34 for 02:50
+2025-08-10 23:42:44.066 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__35 for 02:55
+2025-08-10 23:42:44.066 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__36 for 03:00
+2025-08-10 23:42:44.067 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__37 for 03:05
+2025-08-10 23:42:44.067 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__38 for 03:10
+2025-08-10 23:42:44.068 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__39 for 03:15
+2025-08-10 23:42:44.068 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__40 for 03:20
+2025-08-10 23:42:44.068 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__41 for 03:25
+2025-08-10 23:42:44.069 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__42 for 03:30
+2025-08-10 23:42:44.069 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__43 for 03:35
+2025-08-10 23:42:44.070 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__44 for 03:40
+2025-08-10 23:42:44.070 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__45 for 03:45
+2025-08-10 23:42:44.071 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__46 for 03:50
+2025-08-10 23:42:44.071 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__47 for 03:55
+2025-08-10 23:42:44.072 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__48 for 04:00
+2025-08-10 23:42:44.072 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__49 for 04:05
+2025-08-10 23:42:44.073 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__50 for 04:10
+2025-08-10 23:42:44.073 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__51 for 04:15
+2025-08-10 23:42:44.074 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__52 for 04:20
+2025-08-10 23:42:44.074 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__53 for 04:25
+2025-08-10 23:42:44.075 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__54 for 04:30
+2025-08-10 23:42:44.075 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__55 for 04:35
+2025-08-10 23:42:44.076 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__56 for 04:40
+2025-08-10 23:42:44.076 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__57 for 04:45
+2025-08-10 23:42:44.077 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__58 for 04:50
+2025-08-10 23:42:44.077 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__59 for 04:55
+2025-08-10 23:42:44.078 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__60 for 05:00
+2025-08-10 23:42:44.078 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__61 for 05:05
+2025-08-10 23:42:44.079 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__62 for 05:10
+2025-08-10 23:42:44.079 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__63 for 05:15
+2025-08-10 23:42:44.080 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__64 for 05:20
+2025-08-10 23:42:44.081 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__65 for 05:25
+2025-08-10 23:42:44.081 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__66 for 05:30
+2025-08-10 23:42:44.081 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__67 for 05:35
+2025-08-10 23:42:44.082 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__68 for 05:40
+2025-08-10 23:42:44.082 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__69 for 05:45
+2025-08-10 23:42:44.083 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__70 for 05:50
+2025-08-10 23:42:44.083 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__71 for 05:55
+2025-08-10 23:42:44.083 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__72 for 06:00
+2025-08-10 23:42:44.084 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__73 for 06:05
+2025-08-10 23:42:44.084 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__74 for 06:10
+2025-08-10 23:42:44.085 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__75 for 06:15
+2025-08-10 23:42:44.085 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__76 for 06:20
+2025-08-10 23:42:44.086 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__77 for 06:25
+2025-08-10 23:42:44.086 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__78 for 06:30
+2025-08-10 23:42:44.087 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__79 for 06:35
+2025-08-10 23:42:44.087 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__80 for 06:40
+2025-08-10 23:42:44.087 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__81 for 06:45
+2025-08-10 23:42:44.088 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__82 for 06:50
+2025-08-10 23:42:44.088 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__83 for 06:55
+2025-08-10 23:42:44.088 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__84 for 07:00
+2025-08-10 23:42:44.089 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__85 for 07:05
+2025-08-10 23:42:44.089 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__86 for 07:10
+2025-08-10 23:42:44.090 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__87 for 07:15
+2025-08-10 23:42:44.090 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__88 for 07:20
+2025-08-10 23:42:44.091 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__89 for 07:25
+2025-08-10 23:42:44.091 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__90 for 07:30
+2025-08-10 23:42:44.091 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__91 for 07:35
+2025-08-10 23:42:44.092 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__92 for 07:40
+2025-08-10 23:42:44.092 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__93 for 07:45
+2025-08-10 23:42:44.093 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__94 for 07:50
+2025-08-10 23:42:44.093 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__95 for 07:55
+2025-08-10 23:42:44.093 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__96 for 08:00
+2025-08-10 23:42:44.094 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__97 for 08:05
+2025-08-10 23:42:44.094 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__98 for 08:10
+2025-08-10 23:42:44.095 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__99 for 08:15
+2025-08-10 23:42:44.095 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__100 for 08:20
+2025-08-10 23:42:44.095 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__101 for 08:25
+2025-08-10 23:42:44.096 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__102 for 08:30
+2025-08-10 23:42:44.096 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__103 for 08:35
+2025-08-10 23:42:44.097 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__104 for 08:40
+2025-08-10 23:42:44.097 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__105 for 08:45
+2025-08-10 23:42:44.098 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__106 for 08:50
+2025-08-10 23:42:44.098 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__107 for 08:55
+2025-08-10 23:42:44.098 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__108 for 09:00
+2025-08-10 23:42:44.099 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__109 for 09:05
+2025-08-10 23:42:44.099 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__110 for 09:10
+2025-08-10 23:42:44.099 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__111 for 09:15
+2025-08-10 23:42:44.100 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__112 for 09:20
+2025-08-10 23:42:44.100 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__113 for 09:25
+2025-08-10 23:42:44.100 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__114 for 09:30
+2025-08-10 23:42:44.101 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__115 for 09:35
+2025-08-10 23:42:44.101 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__116 for 09:40
+2025-08-10 23:42:44.102 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__117 for 09:45
+2025-08-10 23:42:44.102 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__118 for 09:50
+2025-08-10 23:42:44.102 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__119 for 09:55
+2025-08-10 23:42:44.103 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__120 for 10:00
+2025-08-10 23:42:44.103 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__121 for 10:05
+2025-08-10 23:42:44.104 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__122 for 10:10
+2025-08-10 23:42:44.104 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__123 for 10:15
+2025-08-10 23:42:44.104 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__124 for 10:20
+2025-08-10 23:42:44.105 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__125 for 10:25
+2025-08-10 23:42:44.105 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__126 for 10:30
+2025-08-10 23:42:44.105 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__127 for 10:35
+2025-08-10 23:42:44.106 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__128 for 10:40
+2025-08-10 23:42:44.106 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__129 for 10:45
+2025-08-10 23:42:44.107 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__130 for 10:50
+2025-08-10 23:42:44.107 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__131 for 10:55
+2025-08-10 23:42:44.107 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__132 for 11:00
+2025-08-10 23:42:44.108 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__133 for 11:05
+2025-08-10 23:42:44.108 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__134 for 11:10
+2025-08-10 23:42:44.109 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__135 for 11:15
+2025-08-10 23:42:44.109 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__136 for 11:20
+2025-08-10 23:42:44.109 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__137 for 11:25
+2025-08-10 23:42:44.110 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__138 for 11:30
+2025-08-10 23:42:44.110 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__139 for 11:35
+2025-08-10 23:42:44.110 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__140 for 11:40
+2025-08-10 23:42:44.111 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__141 for 11:45
+2025-08-10 23:42:44.111 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__142 for 11:50
+2025-08-10 23:42:44.111 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__143 for 11:55
+2025-08-10 23:42:44.112 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__144 for 12:00
+2025-08-10 23:42:44.112 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__145 for 12:05
+2025-08-10 23:42:44.113 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__146 for 12:10
+2025-08-10 23:42:44.113 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__147 for 12:15
+2025-08-10 23:42:44.113 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__148 for 12:20
+2025-08-10 23:42:44.114 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__149 for 12:25
+2025-08-10 23:42:44.114 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__150 for 12:30
+2025-08-10 23:42:44.114 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__151 for 12:35
+2025-08-10 23:42:44.115 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__152 for 12:40
+2025-08-10 23:42:44.115 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__153 for 12:45
+2025-08-10 23:42:44.115 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__154 for 12:50
+2025-08-10 23:42:44.116 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__155 for 12:55
+2025-08-10 23:42:44.116 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__156 for 13:00
+2025-08-10 23:42:44.116 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__157 for 13:05
+2025-08-10 23:42:44.117 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__158 for 13:10
+2025-08-10 23:42:44.117 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__159 for 13:15
+2025-08-10 23:42:44.118 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__160 for 13:20
+2025-08-10 23:42:44.118 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__161 for 13:25
+2025-08-10 23:42:44.118 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__162 for 13:30
+2025-08-10 23:42:44.119 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__163 for 13:35
+2025-08-10 23:42:44.119 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__164 for 13:40
+2025-08-10 23:42:44.119 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__165 for 13:45
+2025-08-10 23:42:44.120 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__166 for 13:50
+2025-08-10 23:42:44.120 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__167 for 13:55
+2025-08-10 23:42:44.120 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__168 for 14:00
+2025-08-10 23:42:44.121 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__169 for 14:05
+2025-08-10 23:42:44.121 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__170 for 14:10
+2025-08-10 23:42:44.121 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__171 for 14:15
+2025-08-10 23:42:44.122 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__172 for 14:20
+2025-08-10 23:42:44.122 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__173 for 14:25
+2025-08-10 23:42:44.123 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__174 for 14:30
+2025-08-10 23:42:44.123 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__175 for 14:35
+2025-08-10 23:42:44.124 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__176 for 14:40
+2025-08-10 23:42:44.124 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__177 for 14:45
+2025-08-10 23:42:44.124 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__178 for 14:50
+2025-08-10 23:42:44.125 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__179 for 14:55
+2025-08-10 23:42:44.125 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__180 for 15:00
+2025-08-10 23:42:44.125 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__181 for 15:05
+2025-08-10 23:42:44.126 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__182 for 15:10
+2025-08-10 23:42:44.126 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__183 for 15:15
+2025-08-10 23:42:44.126 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__184 for 15:20
+2025-08-10 23:42:44.127 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__185 for 15:25
+2025-08-10 23:42:44.127 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__186 for 15:30
+2025-08-10 23:42:44.127 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__187 for 15:35
+2025-08-10 23:42:44.128 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__188 for 15:40
+2025-08-10 23:42:44.128 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__189 for 15:45
+2025-08-10 23:42:44.129 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__190 for 15:50
+2025-08-10 23:42:44.129 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__191 for 15:55
+2025-08-10 23:42:44.129 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__192 for 16:00
+2025-08-10 23:42:44.130 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__193 for 16:05
+2025-08-10 23:42:44.130 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__194 for 16:10
+2025-08-10 23:42:44.130 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__195 for 16:15
+2025-08-10 23:42:44.131 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__196 for 16:20
+2025-08-10 23:42:44.131 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__197 for 16:25
+2025-08-10 23:42:44.131 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__198 for 16:30
+2025-08-10 23:42:44.132 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__199 for 16:35
+2025-08-10 23:42:44.132 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__200 for 16:40
+2025-08-10 23:42:44.133 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__201 for 16:45
+2025-08-10 23:42:44.133 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__202 for 16:50
+2025-08-10 23:42:44.133 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__203 for 16:55
+2025-08-10 23:42:44.134 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__204 for 17:00
+2025-08-10 23:42:44.134 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__205 for 17:05
+2025-08-10 23:42:44.135 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__206 for 17:10
+2025-08-10 23:42:44.135 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__207 for 17:15
+2025-08-10 23:42:44.135 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__208 for 17:20
+2025-08-10 23:42:44.136 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__209 for 17:25
+2025-08-10 23:42:44.136 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__210 for 17:30
+2025-08-10 23:42:44.137 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__211 for 17:35
+2025-08-10 23:42:44.137 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__212 for 17:40
+2025-08-10 23:42:44.137 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__213 for 17:45
+2025-08-10 23:42:44.138 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__214 for 17:50
+2025-08-10 23:42:44.138 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__215 for 17:55
+2025-08-10 23:42:44.138 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__216 for 18:00
+2025-08-10 23:42:44.138 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__217 for 18:05
+2025-08-10 23:42:44.139 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__218 for 18:10
+2025-08-10 23:42:44.139 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__219 for 18:15
+2025-08-10 23:42:44.140 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__220 for 18:20
+2025-08-10 23:42:44.140 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__221 for 18:25
+2025-08-10 23:42:44.141 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__222 for 18:30
+2025-08-10 23:42:44.141 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__223 for 18:35
+2025-08-10 23:42:44.142 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__224 for 18:40
+2025-08-10 23:42:44.142 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__225 for 18:45
+2025-08-10 23:42:44.142 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__226 for 18:50
+2025-08-10 23:42:44.143 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__227 for 18:55
+2025-08-10 23:42:44.143 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__228 for 19:00
+2025-08-10 23:42:44.143 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__229 for 19:05
+2025-08-10 23:42:44.144 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__230 for 19:10
+2025-08-10 23:42:44.144 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__231 for 19:15
+2025-08-10 23:42:44.145 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__232 for 19:20
+2025-08-10 23:42:44.145 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__233 for 19:25
+2025-08-10 23:42:44.145 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__234 for 19:30
+2025-08-10 23:42:44.146 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__235 for 19:35
+2025-08-10 23:42:44.146 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__236 for 19:40
+2025-08-10 23:42:44.146 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__237 for 19:45
+2025-08-10 23:42:44.147 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__238 for 19:50
+2025-08-10 23:42:44.147 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__239 for 19:55
+2025-08-10 23:42:44.148 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__240 for 20:00
+2025-08-10 23:42:44.148 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__241 for 20:05
+2025-08-10 23:42:44.148 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__242 for 20:10
+2025-08-10 23:42:44.149 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__243 for 20:15
+2025-08-10 23:42:44.149 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__244 for 20:20
+2025-08-10 23:42:44.149 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__245 for 20:25
+2025-08-10 23:42:44.150 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__246 for 20:30
+2025-08-10 23:42:44.150 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__247 for 20:35
+2025-08-10 23:42:44.150 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__248 for 20:40
+2025-08-10 23:42:44.151 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__249 for 20:45
+2025-08-10 23:42:44.151 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__250 for 20:50
+2025-08-10 23:42:44.152 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__251 for 20:55
+2025-08-10 23:42:44.152 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__252 for 21:00
+2025-08-10 23:42:44.152 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__253 for 21:05
+2025-08-10 23:42:44.153 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__254 for 21:10
+2025-08-10 23:42:44.153 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__255 for 21:15
+2025-08-10 23:42:44.154 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__256 for 21:20
+2025-08-10 23:42:44.154 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__257 for 21:25
+2025-08-10 23:42:44.154 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__258 for 21:30
+2025-08-10 23:42:44.155 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__259 for 21:35
+2025-08-10 23:42:44.155 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__260 for 21:40
+2025-08-10 23:42:44.155 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__261 for 21:45
+2025-08-10 23:42:44.156 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__262 for 21:50
+2025-08-10 23:42:44.156 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__263 for 21:55
+2025-08-10 23:42:44.156 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__264 for 22:00
+2025-08-10 23:42:44.157 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__265 for 22:05
+2025-08-10 23:42:44.157 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__266 for 22:10
+2025-08-10 23:42:44.158 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__267 for 22:15
+2025-08-10 23:42:44.158 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__268 for 22:20
+2025-08-10 23:42:44.158 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__269 for 22:25
+2025-08-10 23:42:44.159 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__270 for 22:30
+2025-08-10 23:42:44.159 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__271 for 22:35
+2025-08-10 23:42:44.159 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__272 for 22:40
+2025-08-10 23:42:44.160 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__273 for 22:45
+2025-08-10 23:42:44.160 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__274 for 22:50
+2025-08-10 23:42:44.160 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__275 for 22:55
+2025-08-10 23:42:44.161 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__276 for 23:00
+2025-08-10 23:42:44.161 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__277 for 23:05
+2025-08-10 23:42:44.161 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__278 for 23:10
+2025-08-10 23:42:44.162 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__279 for 23:15
+2025-08-10 23:42:44.162 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__280 for 23:20
+2025-08-10 23:42:44.163 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__281 for 23:25
+2025-08-10 23:42:44.163 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__282 for 23:30
+2025-08-10 23:42:44.164 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__283 for 23:35
+2025-08-10 23:42:44.164 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__284 for 23:40
+2025-08-10 23:42:44.164 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__285 for 23:45
+2025-08-10 23:42:44.165 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__286 for 23:50
+2025-08-10 23:42:44.165 | DEBUG    | tools:schedule_cron:114 - Scheduling CRON alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14 job_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14__cron__287 for 23:55
+2025-08-10 23:42:53.444 | DEBUG    | __main__:list_alerts_handler:417 - Listing alerts for user_id=1132147659
+2025-08-10 23:42:53.444 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:42:53.452 | DEBUG    | tools:load_alerts:58 - Loaded 2 alerts.
+2025-08-10 23:43:15.421 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:43:15.427 | DEBUG    | tools:load_alerts:58 - Loaded 2 alerts.
+2025-08-10 23:43:20.170 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:43:20.176 | DEBUG    | tools:load_alerts:58 - Loaded 2 alerts.
+2025-08-10 23:45:00.005 | DEBUG    | tools:send_alert_back:361 - send_alert_back called for user_id=1132147659 alert_id=407c1aa9-262b-42b2-8e31-8f3ad5123f14
+2025-08-10 23:45:00.006 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:45:00.012 | DEBUG    | tools:load_alerts:58 - Loaded 2 alerts.
+2025-08-10 23:45:00.027 | DEBUG    | tools:send_alert_back:361 - send_alert_back called for user_id=1132147659 alert_id=64c4f925-2d46-4081-b40f-263b71b3009d
+2025-08-10 23:45:00.028 | DEBUG    | tools:load_alerts:31 - Loading alerts from CSV...
+2025-08-10 23:45:00.034 | DEBUG    | tools:load_alerts:58 - Loaded 2 alerts.

@@ -1,1 +1,0 @@
-user_id,created_at,send_at,file_id,media_type,alert_id,title,kind,times,days_of_week,window_start,window_end,interval_minutes,cron_expr

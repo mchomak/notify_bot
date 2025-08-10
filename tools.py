@@ -34,6 +34,7 @@ def load_alerts() -> pd.DataFrame:
         dtype={
             "user_id": "int64",
             "file_id": "string",
+            "payload_text": "string",
             "media_type": "string",
             "alert_id": "string",
             "title": "string",
@@ -51,6 +52,9 @@ def load_alerts() -> pd.DataFrame:
         if col not in df.columns:
             logger.debug("Column '{}' not found in CSV. Adding empty column.", col)
             df[col] = pd.Series(dtype="object")
+    # safety: ensure payload_text exists
+    if "payload_text" not in df.columns:
+        df["payload_text"] = pd.Series(dtype="string")
     logger.debug("Loaded {} alerts.", len(df))
     return df
 
@@ -79,11 +83,26 @@ def remove_alert(alert_id: str) -> None:
     after = len(df)
     logger.debug("Removed. Before={}, After={}", before, after)
 
+def unschedule_alert(alert_id: str, scheduler: AsyncIOScheduler):
+    """
+    Снимает все job'ы, созданные для уведомления (id совпадает с alert_id или начинается с него + суффикс)
+    """
+    jobs = scheduler.get_jobs()
+    removed = 0
+    for j in jobs:
+        if j.id and (j.id == alert_id or j.id.startswith(alert_id + "__")):
+            try:
+                scheduler.remove_job(j.id)
+                removed += 1
+            except Exception:
+                pass
+    logger.debug("unschedule_alert: alert_id={} removed_jobs={}", alert_id, removed)
+
 # ====================== SCHEDULING HELPERS ======================
 def schedule_one_time(alert_id: str, user_id: int, run_at: datetime, *, scheduler: AsyncIOScheduler, bot: Bot):
     logger.debug("Scheduling one-time alert_id={} at {}", alert_id, run_at.isoformat())
     scheduler.add_job(
-        send_video_back, "date",
+        send_alert_back, "date",
         run_date=run_at,
         args=(user_id, alert_id, bot),
         id=alert_id,
@@ -94,7 +113,7 @@ def schedule_cron(alert_id: str, user_id: int, hour: int, minute: int, *, schedu
     job_id = f"{alert_id}__cron{suffix}"
     logger.debug("Scheduling CRON alert_id={} job_id={} for {:02d}:{:02d}", alert_id, job_id, hour, minute)
     scheduler.add_job(
-        send_video_back, CronTrigger(hour=hour, minute=minute),
+        send_alert_back, CronTrigger(hour=hour, minute=minute),
         args=(user_id, alert_id, bot),
         id=job_id,
         replace_existing=True
@@ -113,7 +132,7 @@ def schedule_weekly(alert_id: str, user_id: int, days: List[str], times_hhmm: Li
         job_id = f"{alert_id}__weekly__{i}"
         logger.debug(" -> job_id={} day_of_week={}, time={}", job_id, ",".join(days), t)
         scheduler.add_job(
-            send_video_back,
+            send_alert_back,
             CronTrigger(day_of_week=",".join(days), hour=h, minute=m),
             args=(user_id, alert_id, bot),
             id=job_id,
@@ -183,7 +202,7 @@ def restore_jobs_from_csv(*, scheduler: AsyncIOScheduler, bot: Bot):
                     job_id = f"{alert_id}__cronexpr"
                     logger.debug(" -> restoring CRON expr job_id={} expr={}", job_id, cron_expr)
                     scheduler.add_job(
-                        send_video_back,
+                        send_alert_back,
                         CronTrigger.from_crontab(cron_expr),
                         args=(uid, alert_id, bot),
                         id=job_id,
@@ -212,7 +231,7 @@ def log_time_parse(user_id: int, input_text: str, recognized: Optional[datetime]
             "recognized": recognized.isoformat() if isinstance(recognized, datetime) else ""
         })
 
-# ====================== AI INTERVAL PARSER ======================
+# ====================== AI INTERVAL PARSER (как раньше) ======================
 def build_interval_system_prompt() -> str:
     spec = json.dumps(INTERVAL_JSON_SPEC, ensure_ascii=False, indent=2)
     return (
@@ -275,6 +294,7 @@ def _extract_json_payload(content: str) -> Optional[str]:
     return payload.strip() if payload else None
 
 async def parse_interval_with_ai(text: str, ai_client: Any) -> Optional[Dict[str, Any]]:
+    from openai import OpenAI  # тип
     logger.debug("AI interval parse request: {}", text)
     try:
         resp = ai_client.chat.completions.create(
@@ -332,6 +352,86 @@ async def parse_interval_with_ai(text: str, ai_client: Any) -> Optional[Dict[str
 
     logger.debug("All JSON parsing attempts failed.")
     return None
+
+# ====================== SENDER ======================
+async def send_alert_back(user_id: int, alert_id: str, bot: Bot):
+    """
+    Шлём контент, затем — название (если есть). Поддержка всех типов.
+    Исправлено: безопасное извлечение значений из pandas (pd.NA/NaN/None).
+    """
+    logger.debug("send_alert_back called for user_id={} alert_id={}", user_id, alert_id)
+    df = load_alerts()
+    row = df[df["alert_id"] == alert_id]
+    if row.empty:
+        logger.debug("Alert not found in CSV for id={}, maybe already removed.", alert_id)
+        return
+
+    r = row.iloc[0]
+
+    def sget(key: str, default: str = "") -> str:
+        """Safe get: converts pd.NA/NaN/None to default, else str(value)."""
+        try:
+            val = r.get(key)
+        except Exception:
+            return default
+        # pd.NA / NaN / None -> default
+        try:
+            if val is None or pd.isna(val):
+                return default
+        except Exception:
+            # если объект не поддерживает isna — просто дальше
+            if val is None:
+                return default
+        return str(val)
+
+    media_type = sget("media_type", "text").lower()
+    file_id = sget("file_id", "")
+    payload_text = sget("payload_text", "")
+    title = sget("title", "")
+    kind = sget("kind", "one_time").lower()
+
+    logger.debug("Sending type={} file_id='{}' text_len={} title_len={}",
+                 media_type, file_id, len(payload_text), len(title))
+
+    try:
+        if media_type == "text":
+            if payload_text:
+                await bot.send_message(chat_id=user_id, text=payload_text)
+        elif media_type == "photo" and file_id:
+            await bot.send_photo(chat_id=user_id, photo=file_id)
+        elif media_type == "video" and file_id:
+            await bot.send_video(chat_id=user_id, video=file_id)
+        elif media_type == "video_note" and file_id:
+            await bot.send_video_note(chat_id=user_id, video_note=file_id)
+        elif media_type == "animation" and file_id:
+            await bot.send_animation(chat_id=user_id, animation=file_id)
+        elif media_type == "audio" and file_id:
+            await bot.send_audio(chat_id=user_id, audio=file_id)
+        elif media_type == "voice" and file_id:
+            await bot.send_voice(chat_id=user_id, voice=file_id)
+        elif media_type == "document" and file_id:
+            await bot.send_document(chat_id=user_id, document=file_id)
+        elif media_type == "sticker" and file_id:
+            await bot.send_sticker(chat_id=user_id, sticker=file_id)
+        else:
+            # fallback: если тип неизвестен или нет file_id — отправим текст, если он есть
+            if payload_text:
+                await bot.send_message(chat_id=user_id, text=payload_text)
+    except Exception as e:
+        logger.exception("send_alert_back payload send failed for alert_id={}: {}", alert_id, e)
+
+    # затем — название (если не пустое)
+    if title:
+        try:
+            await bot.send_message(chat_id=user_id, text=title)
+        except Exception as e:
+            logger.exception("send_alert_back title send failed for alert_id={}: {}", alert_id, e)
+
+    # удаляем только одноразовые
+    if kind in ("", "one_time"):
+        logger.debug("One-time alert sent, removing alert_id={}", alert_id)
+        remove_alert(alert_id)
+
 
 # ====================== HELPERS ======================
 def summarize_interval(d: Dict[str, Any]) -> str:
@@ -434,26 +534,3 @@ def normalize_interval_def(d: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     except Exception as e:
         logger.exception("normalize_interval_def failed: {}", e)
         return None
-
-# ====================== SENDER ======================
-async def send_video_back(user_id: int, alert_id: str, bot: Bot):
-    logger.debug("send_video_back called for user_id={} alert_id={}", user_id, alert_id)
-    df = load_alerts()
-    row = df[df["alert_id"] == alert_id]
-    if row.empty:
-        logger.debug("Alert not found in CSV for id={}, maybe already removed.", alert_id)
-        return
-    file_id = (row.iloc[0]["file_id"] or "").strip()
-    media_type = (row.iloc[0]["media_type"] or "video").lower()
-    logger.debug("Sending media_type={} file_id={} to user_id={}", media_type, file_id, user_id)
-    try:
-        if media_type == "video_note":
-            await bot.send_video_note(chat_id=user_id, video_note=file_id)
-        else:
-            await bot.send_video(chat_id=user_id, video=file_id)
-    except Exception as e:
-        logger.exception("send_video_back failed for alert_id={}: {}", alert_id, e)
-    kind = (row.iloc[0].get("kind") or "one_time").lower()
-    if kind in ("", "one_time"):
-        logger.debug("One-time alert sent, removing alert_id={}", alert_id)
-        remove_alert(alert_id)
