@@ -49,6 +49,8 @@ class Settings:
     redis_url: Optional[str] = None
     webhook_url: Optional[str] = None
     sentry_dsn: Optional[str] = None
+    deepseek_key: Optional[str] = None
+    api_url: Optional[str] = None
 
 
 def _to_bool(value: Optional[str], default: bool = False) -> bool:
