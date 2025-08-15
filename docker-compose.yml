@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  bot:
+    build: .
+    container_name: notify_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Сохраняем БД SQLite и логи на хосте (чтобы переживали перезапуск)
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    container_name: myredis
+    restart: unless-stopped
+    # Данные Redis — в named volume (переживают пересоздание контейнера)
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+    # Если хочешь подключаться к Redis с хоста для дебага — открой порт:
+    # ports:
+    #   - "6379:6379"
+
+volumes:
+  redisdata:

@@ -12,76 +12,22 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from loguru import logger
 
-from config import *  # CSV_FILE, CSV_FIELDS, TIME_PARSE_LOG_FILE, MODEL_NAME, INTERVAL_JSON_SPEC
+from config import *
 
-# ====================== CSV INIT ======================
-def ensure_csv():
-    logger.debug("Ensuring CSV exists at: {}", CSV_FILE)
-    try:
-        open(CSV_FILE, newline="", encoding="utf-8").close()
-        logger.debug("CSV file exists.")
-    except FileNotFoundError:
-        logger.debug("CSV file not found. Creating new with headers: {}", CSV_FIELDS)
-        with open(CSV_FILE, "w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
-            writer.writeheader()
-
-# ====================== UTILS: CSV ======================
 def load_alerts() -> pd.DataFrame:
-    logger.debug("Loading alerts from CSV...")
-    df = pd.read_csv(
-        CSV_FILE,
-        dtype={
-            "user_id": "int64",
-            "file_id": "string",
-            "payload_text": "string",
-            "media_type": "string",
-            "alert_id": "string",
-            "title": "string",
-            "kind": "string",
-            "times": "string",
-            "days_of_week": "string",
-            "window_start": "string",
-            "window_end": "string",
-            "interval_minutes": "float64",
-            "cron_expr": "string",
-        },
-        parse_dates=["created_at", "send_at"]
-    )
-    for col in CSV_FIELDS:
-        if col not in df.columns:
-            logger.debug("Column '{}' not found in CSV. Adding empty column.", col)
-            df[col] = pd.Series(dtype="object")
-    # safety: ensure payload_text exists
-    if "payload_text" not in df.columns:
-        df["payload_text"] = pd.Series(dtype="string")
-    logger.debug("Loaded {} alerts.", len(df))
-    return df
+    logger.debug("Loading alerts from SQL...")
+    # загрузка alerts из SQL после и добавлние их в напоминание после перезапуска 
 
-def save_alerts(df: pd.DataFrame) -> None:
-    logger.debug("Saving {} alerts to CSV...", len(df))
-    df.to_csv(CSV_FILE, index=False)
-    logger.debug("CSV saved.")
 
 def add_alert_row(row: Dict[str, Any]) -> str:
-    logger.debug("Adding alert row: {}", row)
-    df = load_alerts()
-    alert_id = str(uuid.uuid4())
-    row["alert_id"] = alert_id
-    row_df = pd.DataFrame([row])
-    df = pd.concat([df, row_df], ignore_index=True)
-    save_alerts(df)
-    logger.debug("Alert added with id={}", alert_id)
-    return alert_id
+    # добавление alert
+    pass
+
 
 def remove_alert(alert_id: str) -> None:
-    logger.debug("Removing alert id={}", alert_id)
-    df = load_alerts()
-    before = len(df)
-    df = df[df["alert_id"] != alert_id]
-    save_alerts(df)
-    after = len(df)
-    logger.debug("Removed. Before={}, After={}", before, after)
+    # удалениме alert 
+    pass
+
 
 def unschedule_alert(alert_id: str, scheduler: AsyncIOScheduler):
     """
@@ -94,9 +40,12 @@ def unschedule_alert(alert_id: str, scheduler: AsyncIOScheduler):
             try:
                 scheduler.remove_job(j.id)
                 removed += 1
+
             except Exception:
                 pass
+
     logger.debug("unschedule_alert: alert_id={} removed_jobs={}", alert_id, removed)
+
 
 # ====================== SCHEDULING HELPERS ======================
 def schedule_one_time(alert_id: str, user_id: int, run_at: datetime, *, scheduler: AsyncIOScheduler, bot: Bot):
@@ -213,23 +162,6 @@ def restore_jobs_from_csv(*, scheduler: AsyncIOScheduler, bot: Bot):
                     continue
     logger.debug("Restore finished.")
 
-# ====================== LOGGING TIME PARSE ======================
-def log_time_parse(user_id: int, input_text: str, recognized: Optional[datetime], file_path: str = TIME_PARSE_LOG_FILE) -> None:
-    logger.debug("Logging time parse: user_id={}, input='{}', recognized={}", user_id, input_text, recognized)
-    fields = ["user_id", "input_text", "recognized"]
-    try:
-        open(file_path, newline="", encoding="utf-8").close()
-    except FileNotFoundError:
-        with open(file_path, "w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=fields)
-            writer.writeheader()
-    with open(file_path, "a", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fields)
-        writer.writerow({
-            "user_id": user_id,
-            "input_text": input_text,
-            "recognized": recognized.isoformat() if isinstance(recognized, datetime) else ""
-        })
 
 # ====================== AI INTERVAL PARSER (как раньше) ======================
 def build_interval_system_prompt() -> str:
@@ -248,6 +180,7 @@ def build_interval_system_prompt() -> str:
         "- 'one_time': если это единичное время/дата (но такие мы обычно обрабатываем отдельно).\n"
         "Если чего-то не хватает, делай безопасные допущения. Не придумывай лишнего."
     )
+
 
 def _extract_balanced_json_block(s: str) -> Optional[str]:
     start = s.find("{")
