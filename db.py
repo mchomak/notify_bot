@@ -18,8 +18,8 @@ from sqlalchemy import (
     func,
     event,
     select,
-    JSON,
-    Text,
+    JSON,              # ← добавьте это
+    Text,              # можно оставить, если используется где-то ещё
 )
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
@@ -67,11 +67,6 @@ class User(Base):
 
 
 class Alert(Base):
-    """
-    Alert definition. Supports one-time (by UTC datetime) and cron-based repeats.
-    Content is stored as Telegram file_id/text in content_json.
-    """
-
     __tablename__ = "alerts"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -79,17 +74,15 @@ class Alert(Base):
     owner_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, index=True)  # Telegram user_id
     title: Mapped[Optional[str]] = mapped_column(String(128))
 
-    # content
-    content_type: Mapped[str] = mapped_column(String(20), nullable=False)  # text, photo, video, voice, audio, document, video_note
-    content_json: Mapped[dict] = mapped_column(JSON().with_variant(Text, "sqlite"), nullable=False)
+    content_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    content_json: Mapped[dict] = mapped_column(JSON, nullable=False)
 
-    # scheduling
     kind: Mapped[str] = mapped_column(String(10), nullable=False, default="one")  # one | cron
-    run_at_utc: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))  # for kind=one
-    cron: Mapped[Optional[str]] = mapped_column(String(128))  # crontab (5 fields) for kind=cron
+    run_at_utc: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    cron: Mapped[Optional[str]] = mapped_column(String(128))
     tz: Mapped[str] = mapped_column(String(64), nullable=False, default="UTC")
 
-    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, index=True)
     last_run_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
 
     created_at: Mapped[datetime] = mapped_column(
@@ -97,11 +90,6 @@ class Alert(Base):
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
-    )
-
-    __table_args__ = (
-        Index("ix_alerts_owner_user_id", "owner_user_id"),
-        Index("ix_alerts_enabled", "enabled"),
     )
 
 

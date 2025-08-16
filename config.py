@@ -29,6 +29,9 @@ class Settings:
     telegram_alerts_chat_id: Optional[str] = None
     redis_url: Optional[str] = None
     default_timezone: str = "UTC"  # used in prompts / fallback when user skips TZ
+    deepseek_key: Optional[str] = None
+    deepseek_api_url: Optional[str] = "https://api.deepseek.com"
+    deepseek_model: Optional[str] = "deepseek-chat"
 
 
 def _to_bool(value: Optional[str], default: bool = False) -> bool:
@@ -56,6 +59,9 @@ def load_env(env_file: str = ".env") -> Settings:
     database_url = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./data/app.db").strip()
     redis_url = os.getenv("REDIS_URL")
     default_tz = (os.getenv("DEFAULT_TZ") or "UTC").strip()
+    deepseek_key = os.getenv("DEEPSEEK_KEY", "sqlite+aiosqlite:///./data/app.db").strip()
+    deepseek_api_url = os.getenv("DEEPSEEK_API_URL", "https://api.deepseek.com")
+    deepseek_model = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 
     try:
         app_env = AppEnv(app_env_str)
@@ -87,6 +93,9 @@ def load_env(env_file: str = ".env") -> Settings:
         database_url=database_url,
         redis_url=redis_url,
         default_timezone=default_tz,
+        deepseek_key= deepseek_key,
+        deepseek_api_url= deepseek_api_url,
+        deepseek_model= deepseek_model
     )
 
 

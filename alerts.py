@@ -12,11 +12,18 @@ from apscheduler.triggers.date import DateTrigger
 from loguru import logger
 from zoneinfo import ZoneInfo
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from db import Database, Alert, list_alerts, record_alert_run, get_alert
 
 JOB_ID_PREFIX = "alert:"
+
+def _as_aware_utc(dt: datetime | None) -> datetime | None:
+    if dt is None:
+        return None
+    
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    
+    return dt.astimezone(timezone.utc)
 
 
 def job_id_for(alert_id: int) -> str:
@@ -101,6 +108,7 @@ class AlertScheduler:
 
         logger.info("Rebuilt alert schedule", extra={"count": len(rows)})
 
+
     def _add_job_for_alert(self, alert: Alert, *, now_utc: Optional[datetime] = None) -> None:
         if not alert.enabled:
             return
@@ -114,15 +122,16 @@ class AlertScheduler:
             pass
 
         if alert.kind == "one":
-            if not alert.run_at_utc:
+            run = _as_aware_utc(alert.run_at_utc)
+            if not run:
                 logger.warning(f"Alert {alert.id} has no run_at_utc")
                 return
             if now_utc is None:
                 now_utc = datetime.now(timezone.utc)
-            if alert.run_at_utc <= now_utc:
-                logger.info(f"Skip past one-shot alert {alert.id} at {alert.run_at_utc.isoformat()}")
+            if run <= now_utc:
+                logger.info(f"Skip past one-shot alert {alert.id} at {run.isoformat()}")
                 return
-            trigger = DateTrigger(run_date=alert.run_at_utc)
+            trigger = DateTrigger(run_date=run)
         else:
             if not alert.cron:
                 logger.warning(f"Alert {alert.id} has no cron expression")
@@ -142,7 +151,10 @@ class AlertScheduler:
             misfire_grace_time=300,
             kwargs={"alert_id": alert.id},
         )
-        logger.debug(f"Scheduled alert #{alert.id}", extra={"kind": alert.kind, "cron": alert.cron, "run_at_utc": str(alert.run_at_utc)})
+        logger.debug(
+            f"Scheduled alert #{alert.id}",
+            extra={"kind": alert.kind, "cron": alert.cron, "run_at_utc": str(alert.run_at_utc)},
+        )
 
     async def _run_alert_job(self, alert_id: int) -> None:
         """

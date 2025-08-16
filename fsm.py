@@ -61,16 +61,17 @@ class AnyInput(StatesGroup):
 # ---------- alert creation FSM ----------
 
 class AlertCreate(StatesGroup):
-    waiting_title = State()
-    waiting_content_type = State()
-    waiting_content = State()
-    waiting_datetime = State()
-    waiting_timezone = State()
-    waiting_repeat = State()
-    waiting_cron = State()
+    waiting_title = State()        # ввод названия или inline: skip/cancel
+    waiting_content = State()      # пользователь присылает содержимое (любой тип)
+    waiting_sched_kind = State()   # выбор: однократно / циклично (inline)
+    waiting_time_input = State()   # ввод естественного времени для однократного
+    waiting_day = State()          # если указали только время — уточняем день
+    waiting_time_confirm = State() # подтверждение "всё верно / исправить"
+    waiting_repeat = State()       # для цикличных: daily/weekly/monthly/cron (inline)
+    waiting_cycle_dt = State()     # ввод первой даты/времени для построения cron
+    waiting_cron = State()         # ввод crontab
 
 
 # ---------- expectations for inputs (legacy helpers) ----------
-
 async def expect_any(state: FSMContext) -> None:
     await state.set_state(AnyInput.waiting_any)

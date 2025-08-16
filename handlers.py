@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional
+import re
 
 from aiogram import Router, F, Bot
-from aiogram.enums import ChatAction
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import (
@@ -34,9 +34,14 @@ from db import (
     get_alert,
     disable_alert,
 )
+from zoneinfo import ZoneInfo
+from datetime import timezone as _utc_tz, datetime as _dt
 from text import phrases
 from fsm import AlertCreate
 from alerts import AlertScheduler, build_cron_from_repeat, cron_trigger, job_id_for
+from time_parse import parse_human_datetime, combine_day_with_time, format_dt_local
+from ai_interval import ai_parse_interval_phrase
+
 
 # ---------- i18n helpers ----------
 def get_lang(m: Message | CallbackQuery) -> str:
@@ -57,8 +62,17 @@ def T_item(locale: str, key: str, subkey: str) -> str:
         or phrases["en"].get(key, {}).get(subkey, subkey)
 
 
-# ---------- keyboards ----------
+def _as_aware_utc(dt: datetime | None) -> datetime | None:
+    if dt is None:
+        return None
+    # если без tz — считаем, что это уже UTC и проставляем tzinfo
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    # иначе приводим к UTC
+    return dt.astimezone(timezone.utc)
 
+
+# ---------- keyboards ----------
 def main_kb(lang: str) -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         resize_keyboard=True,
@@ -93,10 +107,10 @@ def alerts_list_kb(lang: str, alerts: list[Alert]) -> InlineKeyboardMarkup:
     for a in alerts:
         title = a.title or f"Alert #{a.id}"
         buttons.append([InlineKeyboardButton(text=title, callback_data=f"alert:open:{a.id}")])
-    if not buttons:
-        buttons = [[InlineKeyboardButton(text=T(lang, "kb_back"), callback_data="alert:back")]]
-    else:
-        buttons.append([InlineKeyboardButton(text=T(lang, "kb_back"), callback_data="alert:back")])
+    # if not buttons:
+    #     buttons = [[InlineKeyboardButton(text=T(lang, "kb_back"), callback_data="alert:back")]]
+    # else:
+    #     buttons.append([InlineKeyboardButton(text=T(lang, "kb_back"), callback_data="alert:back")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
@@ -153,12 +167,16 @@ def human_next_fire(alert: Alert) -> str:
     """Compute next fire time (best-effort) for info screens."""
     now_utc = datetime.now(timezone.utc)
     if alert.kind == "one":
-        if alert.run_at_utc and alert.run_at_utc > now_utc:
-            return alert.run_at_utc.isoformat()
+        run = _as_aware_utc(alert.run_at_utc)
+        if run and run > now_utc:
+            return run.isoformat()
         return "-"
     try:
+        tz = ZoneInfo(alert.tz)
         trig = cron_trigger(alert.cron or "* * * * *", alert.tz)
-        nxt = trig.get_next_fire_time(None, now_utc.astimezone(ZoneInfo(alert.tz)))
+        # для расчёта next нужен "сейчас" в TZ триггера
+        now_local = now_utc.astimezone(tz)
+        nxt = trig.get_next_fire_time(previous_fire_time=None, now=now_local)
         return nxt.isoformat() if nxt else "-"
     except Exception:
         return "-"
@@ -171,8 +189,31 @@ def periodicity_human(lang: str, alert: Alert, dt_local: Optional[datetime] = No
     return f"CRON: <code>{cron}</code>"
 
 
-# ---------- main router ----------
+def title_inline_kb(lang: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[[
+        InlineKeyboardButton(text=T(lang, "kb_skip"), callback_data="title:skip"),
+        InlineKeyboardButton(text=T(lang, "kb_cancel"), callback_data="title:cancel"),
+    ]])
 
+def sched_kind_kb(lang: str) -> InlineKeyboardMarkup:
+    # две кнопки: однократно / циклично
+    text_once = "Однократно" if lang == "ru" else "Once"
+    text_cycle = "Циклично" if lang == "ru" else "Recurring"
+    return InlineKeyboardMarkup(inline_keyboard=[[
+        InlineKeyboardButton(text=text_once, callback_data="sched:once"),
+        InlineKeyboardButton(text=text_cycle, callback_data="sched:cycle"),
+    ]])
+
+def confirm_time_kb(lang: str) -> InlineKeyboardMarkup:
+    ok = "✅ Всё верно" if lang == "ru" else "✅ Looks good"
+    fix = "✏️ Исправить" if lang == "ru" else "✏️ Edit"
+    return InlineKeyboardMarkup(inline_keyboard=[[
+        InlineKeyboardButton(text=ok, callback_data="confirm:ok"),
+        InlineKeyboardButton(text=fix, callback_data="confirm:edit"),
+    ]])
+
+
+# ---------- main router ----------
 def build_router(db: Database, scheduler: AlertScheduler, default_tz: str) -> Router:
     """Primary router: start/help/profile + alert CRUD flow."""
     r = Router()
@@ -228,23 +269,31 @@ def build_router(db: Database, scheduler: AlertScheduler, default_tz: str) -> Ro
         await m.answer(text, reply_markup=main_kb(lang))
 
     # ----- Main menu buttons -----
-
     @r.message(F.text.in_({phrases["ru"]["kb_create"], phrases["en"]["kb_create"]}))
     async def on_kb_create(m: Message, state: FSMContext):
         lang = get_lang(m)
         await state.clear()
         await state.update_data(tmp_owner=m.from_user.id)
         await state.set_state(AlertCreate.waiting_title)
-        await m.answer(
-            T(lang, "create_title"),
-            reply_markup=ReplyKeyboardMarkup(
-                resize_keyboard=True,
-                keyboard=[
-                    [KeyboardButton(text=T(lang, "kb_skip"))],
-                    [KeyboardButton(text=T(lang, "kb_cancel"))],
-                ],
-            ),
-        )
+        msg = await m.answer(T(lang, "create_title"), reply_markup=title_inline_kb(lang))
+        await state.update_data(last_bot_mid=msg.message_id)
+
+
+    @r.message(AlertCreate.waiting_title, F.text)
+    async def step_title_text(m: Message, state: FSMContext):
+        lang = get_lang(m)
+        title = (m.text or "").strip()
+        await state.update_data(title=title)
+        await state.set_state(AlertCreate.waiting_content)
+        await m.answer(T(lang, "create_send_text"))  # просим просто прислать содержимое (любое)
+
+
+    @r.message(AlertCreate.waiting_title)
+    async def step_title_any_other(m: Message, state: FSMContext):
+        lang = get_lang(m)
+        await state.clear()
+        await m.answer(T(lang, "create_cancelled"), reply_markup=main_kb(lang))
+
 
 
     @r.message(F.text.in_({phrases["ru"]["kb_list"], phrases["en"]["kb_list"]}))
@@ -261,11 +310,395 @@ def build_router(db: Database, scheduler: AlertScheduler, default_tz: str) -> Ro
             T(lang, "alerts_header"),
             reply_markup=alerts_list_kb(lang, rows),
         )
+    
+
+    @r.callback_query(F.data == "title:skip")
+    async def title_skip(cb: CallbackQuery, state: FSMContext):
+        lang = get_lang(cb)
+        await state.update_data(title=None)
+        await state.set_state(AlertCreate.waiting_content)
+        await cb.message.edit_reply_markup()  # убираем inline
+        await cb.message.answer(T(lang, "create_send_text"))
+
+
+    @r.callback_query(F.data == "title:cancel")
+    async def title_cancel(cb: CallbackQuery, state: FSMContext):
+        lang = get_lang(cb)
+        await state.clear()
+        await cb.message.edit_text(T(lang, "create_cancelled"))
 
 
     @r.message(F.text.in_({phrases["ru"]["kb_profile"], phrases["en"]["kb_profile"]}))
     async def on_kb_profile(m: Message):
         await cmd_profile(m)
+
+
+    @r.message(AlertCreate.waiting_content)
+    async def step_content_any(m: Message, state: FSMContext):
+        lang = get_lang(m)
+        payload: dict = {"parse_mode": "HTML"}
+        content_type: Optional[str] = None
+
+        if m.text:
+            content_type = "text"
+            payload["text"] = m.text
+        elif m.photo:
+            content_type = "photo"
+            payload["file_id"] = m.photo[-1].file_id
+            if m.caption:
+                payload["caption"] = m.caption
+        elif m.video:
+            content_type = "video"
+            payload["file_id"] = m.video.file_id
+            if m.caption:
+                payload["caption"] = m.caption
+        elif m.voice:
+            content_type = "voice"
+            payload["file_id"] = m.voice.file_id
+            if m.caption:
+                payload["caption"] = m.caption
+        elif m.audio:
+            content_type = "audio"
+            payload["file_id"] = m.audio.file_id
+            if m.caption:
+                payload["caption"] = m.caption
+        elif m.document:
+            content_type = "document"
+            payload["file_id"] = m.document.file_id
+            if m.caption:
+                payload["caption"] = m.caption
+        elif m.video_note:
+            content_type = "video_note"
+            payload["file_id"] = m.video_note.file_id
+
+        if not content_type:
+            # не поддерживаемые типы (стикеры/контакты и т.п.) — просим ещё раз
+            await m.answer(T(lang, "create_send_text"))
+            return
+
+        await state.update_data(content_type=content_type, content_json=payload)
+        await state.set_state(AlertCreate.waiting_sched_kind)
+        msg = await m.answer(
+            T(lang, "create_choose_repeat"),
+            reply_markup=sched_kind_kb(lang),
+        )
+        await state.update_data(last_bot_mid=msg.message_id)
+
+
+    @r.callback_query(F.data == "sched:once")
+    async def sched_once(cb: CallbackQuery, state: FSMContext):
+        lang = get_lang(cb)
+        await state.set_state(AlertCreate.waiting_time_input)
+        try:
+            await cb.message.edit_text(
+                T(lang, "create_enter_dt"),  # переиспользуем подсказку
+                reply_markup=None
+            )
+        except Exception:
+            await cb.message.answer(T(lang, "create_enter_dt"))
+
+
+    @r.callback_query(F.data == "sched:cycle")
+    async def sched_cycle(cb: CallbackQuery, state: FSMContext):
+        lang = get_lang(cb)
+        await state.set_state(AlertCreate.waiting_cycle_dt)
+
+        prompt_ru = (
+            "Опиши расписание своими словами, например:\n"
+            "• «по выходным в 7 утра»\n"
+            "• «каждый будний день в 09:30 и 18:00»\n"
+            "• «каждые 15 минут с 10:00 до 18:00 по будням»\n"
+            "Или пришли crontab (m h dom mon dow)."
+        )
+        prompt_en = (
+            "Describe the schedule, e.g.:\n"
+            "• “on weekends at 07:00”\n"
+            "• “every weekday at 09:30 and 18:00”\n"
+            "• “every 15 minutes 10:00–18:00 on weekdays”\n"
+            "Or send a crontab (m h dom mon dow)."
+        )
+        await cb.message.edit_text(prompt_ru if lang == "ru" else prompt_en, reply_markup=None)
+
+
+    @r.message(AlertCreate.waiting_cycle_dt)
+    async def step_cycle_dt_ai(m: Message, state: FSMContext):
+        lang = get_lang(m)
+        data = await state.get_data()
+        default_tz = data.get("tz") or "Europe/Moscow"
+
+        text = (m.text or "").strip()
+        # Если пользователь прислал уже крон-строку — пропустим ИИ и сразу создадим
+        if re.match(r"^\s*([\d*/,-]+)\s+([\d*/,-]+)\s+([\d*/,-]+)\s+([\d*/,-]+)\s+([\w*/,?-]+)\s*$", text, flags=re.I):
+            plan_tz = default_tz
+            crons = [text]
+        else:
+            try:
+                plan, crons = ai_parse_interval_phrase(text, lang=lang, default_tz=default_tz)
+                plan_tz = plan.tz or default_tz
+            except Exception as e:
+                err = "Не удалось распознать расписание. Попробуйте переформулировать." if lang == "ru" else "Couldn't parse the schedule. Please rephrase."
+                from loguru import logger
+                logger.warning(f"AI interval parsing failed: {e!r}")
+                await m.answer(err)
+                return
+
+        created_alerts = []
+        async with db.session() as s:
+            for cron in crons:
+                alert = await create_alert(
+                    s,
+                    owner_user_id=m.from_user.id,
+                    title=data.get("title"),
+                    content_type=data["content_type"],
+                    content_json=data["content_json"],
+                    kind="cron",
+                    run_at_utc=None,
+                    cron=cron,
+                    tz=plan_tz,
+                    enabled=True,
+                )
+                created_alerts.append(alert)
+
+        # Планируем каждую задачу
+        for a in created_alerts:
+            scheduler._add_job_for_alert(a)
+
+        await state.clear()
+
+        # Соберём краткую сводку и ЗАМЕНИМ текущее сообщение (как вы просили ранее)
+        lines = []
+        for a in created_alerts:
+            lines.append(T(
+                lang,
+                "alert_info",
+                title=a.title or f"Alert #{a.id}",
+                content_type=T(lang, f"ctype_{a.content_type}") if f"ctype_{a.content_type}" in phrases[lang] else a.content_type,
+                periodicity=f"CRON: <code>{a.cron}</code>",
+                tz=a.tz,
+                next=human_next_fire(a),
+                created=str(a.created_at),
+                id=a.id,
+            ))
+        summary = "\n\n".join(lines)
+        # редактировать нужно ПОСЛЕДНЕЕ бот-сообщение в цепочке. Проще ответить в текущем апдейте:
+        await m.reply(T(lang, "create_ok", summary=summary))
+
+
+    @r.message(AlertCreate.waiting_time_input)
+    async def time_input_once(m: Message, state: FSMContext):
+        lang = get_lang(m)
+        now_local = _dt.now(ZoneInfo("Europe/Moscow"))  # базовый now, парсер сам уточнит tz из текста если сможет
+        res = parse_human_datetime(m.text or "", now_local, lang)
+
+        if res.need_day and res.hour_min:
+            await state.update_data(pending_time=res.hour_min, tz=res.tz)
+            await state.set_state(AlertCreate.waiting_day)
+            # уточняем день
+            hint = "Укажи день: «сегодня», «завтра», день недели или дату (ДД.ММ / ГГГГ-ММ-ДД)" if lang == "ru" \
+                else "Specify the day: “today”, “tomorrow”, weekday or a date (DD.MM / YYYY-MM-DD)"
+            await m.answer(hint)
+            return
+
+        if not res.dt:
+            await m.answer(T(lang, "errors_invalid_dt"))
+            return
+
+        # подтверждение
+        human = format_dt_local(res.dt, res.tz, lang)
+        await state.update_data(dt_local_iso=res.dt.isoformat(), tz=res.tz)
+        await state.set_state(AlertCreate.waiting_time_confirm)
+        await m.answer(human, reply_markup=confirm_time_kb(lang))
+
+
+    @r.message(AlertCreate.waiting_day)
+    async def time_day_disambig(m: Message, state: FSMContext):
+        lang = get_lang(m)
+        data = await state.get_data()
+        hour_min = data.get("pending_time")  # (h, m)
+        tz = data.get("tz") or "Europe/Moscow"
+        now_local = _dt.now(ZoneInfo(tz))
+        res = combine_day_with_time(m.text or "", hour_min, now_local, lang)
+
+        if not res.dt:
+            await m.answer(T(lang, "errors_invalid_dt"))
+            return
+
+        human = format_dt_local(res.dt, res.tz, lang)
+        await state.update_data(dt_local_iso=res.dt.isoformat(), tz=res.tz)
+        await state.set_state(AlertCreate.waiting_time_confirm)
+        await m.answer(human, reply_markup=confirm_time_kb(lang))
+
+
+    @r.callback_query(F.data.in_({"confirm:ok", "confirm:edit"}))
+    async def time_confirm(cb: CallbackQuery, state: FSMContext, bot: Bot):
+        lang = get_lang(cb)
+        if cb.data.endswith("edit"):
+            await state.set_state(AlertCreate.waiting_time_input)
+            # редактируем текущее сообщение, убираем inline
+            try:
+                await cb.message.edit_text(T(lang, "create_enter_dt"))
+            except Exception:
+                # на случай, если текст уже совпадает — просто обновим без reply_markup
+                await cb.message.edit_reply_markup()
+            return
+
+        # confirm ok → сохраняем one-shot alert
+        data = await state.get_data()
+        from datetime import timezone as _utc_tz, datetime as _dt
+        dt_local = _dt.fromisoformat(data["dt_local_iso"])
+        tz = data.get("tz") or "Europe/Moscow"
+        run_at_utc = dt_local.astimezone(_utc_tz.utc)
+
+        async with db.session() as s:
+            alert = await create_alert(
+                s,
+                owner_user_id=cb.from_user.id,
+                title=data.get("title"),
+                content_type=data["content_type"],
+                content_json=data["content_json"],
+                kind="one",
+                run_at_utc=run_at_utc,
+                cron=None,
+                tz=tz,
+                enabled=True,
+            )
+
+        scheduler._add_job_for_alert(alert)
+        await state.clear()
+
+        # формируем сводку и ИМЕННО РЕДАКТИРУЕМ текущее сообщение
+        summary = T(
+            lang,
+            "alert_info",
+            title=alert.title or f"Alert #{alert.id}",
+            content_type=T(lang, f"ctype_{alert.content_type}") if f"ctype_{alert.content_type}" in phrases[lang] else alert.content_type,
+            periodicity=T(lang, "repeat_once"),
+            tz=alert.tz,
+            next=human_next_fire(alert),
+            created=str(alert.created_at),
+            id=alert.id,
+        )
+        await cb.message.edit_text(T(lang, "create_ok", summary=summary))
+
+
+    @r.callback_query(F.data.startswith("repeat:"))
+    async def step_repeat_cycle(cb: CallbackQuery, state: FSMContext):
+        lang = get_lang(cb)
+        choice = cb.data.split(":", 1)[1]
+        if choice == "cron":
+            await state.set_state(AlertCreate.waiting_cron)
+            await cb.message.edit_text(T(lang, "create_enter_cron"), reply_markup=None)
+            return
+
+        # daily/weekly/monthly → просим день/время первого срабатывания в свободной форме
+        await state.update_data(repeat_kind=choice)
+        await state.set_state(AlertCreate.waiting_cycle_dt)
+        ask = "Укажи день и время первого срабатывания (например: «в четверг в 17:40», «завтра в 9», «25.08 10:30»)" \
+            if lang == "ru" else \
+            "Provide the first run day & time (e.g., “on Thu at 17:40”, “tomorrow at 9”, “25.08 10:30”)."
+        await cb.message.edit_text(ask, reply_markup=None)
+
+
+    @r.message(AlertCreate.waiting_cycle_dt)
+    async def step_cycle_dt(m: Message, state: FSMContext):
+        lang = get_lang(m)
+        data = await state.get_data()
+        kind = data.get("repeat_kind")
+        now_local = _dt.now(ZoneInfo("Europe/Moscow"))
+        res = parse_human_datetime(m.text or "", now_local, lang)
+
+        if res.need_day and res.hour_min:
+            # для циклов тоже требуем день, чтобы определить dow/dom
+            await state.update_data(pending_time=res.hour_min, tz=res.tz, repeat_kind=kind)
+            await state.set_state(AlertCreate.waiting_day)
+            hint = "Укажи день: «сегодня», «завтра», день недели или дату (ДД.ММ / ГГГГ-ММ-ДД)" if lang == "ru" \
+                else "Specify the day: “today”, “tomorrow”, weekday or a date (DD.MM / YYYY-MM-DD)"
+            await m.answer(hint)
+            return
+
+        if not res.dt:
+            await m.answer(T(lang, "errors_invalid_dt"))
+            return
+
+        # строим cron по первой локальной дате
+        dt_local = res.dt
+        try:
+            cron = build_cron_from_repeat(kind, dt_local)
+        except Exception:
+            await m.answer(T(lang, "errors_invalid_cron"))
+            return
+
+        async with db.session() as s:
+            alert = await create_alert(
+                s,
+                owner_user_id=m.from_user.id,
+                title=data.get("title"),
+                content_type=data["content_type"],
+                content_json=data["content_json"],
+                kind="cron",
+                run_at_utc=None,
+                cron=cron,
+                tz=res.tz,
+                enabled=True,
+            )
+
+        scheduler._add_job_for_alert(alert)
+        await state.clear()
+
+        summary = T(
+            lang,
+            "alert_info",
+            title=alert.title or f"Alert #{alert.id}",
+            content_type=T(lang, f"ctype_{alert.content_type}") if f"ctype_{alert.content_type}" in phrases[lang] else alert.content_type,
+            periodicity=f"CRON: <code>{alert.cron}</code>",
+            tz=alert.tz,
+            next=human_next_fire(alert),
+            created=str(alert.created_at),
+            id=alert.id,
+        )
+        await m.answer(T(lang, "create_ok", summary=summary), reply_markup=main_kb(lang))
+
+
+    @r.message(AlertCreate.waiting_cron)
+    async def step_cron_new(m: Message, state: FSMContext):
+        lang = get_lang(m)
+        cron = (m.text or "").strip()
+        tz = "Europe/Moscow"
+        try:
+            cron_trigger(cron, tz)
+        except Exception:
+            await m.answer(T(lang, "errors_invalid_cron"))
+            return
+
+        data = await state.get_data()
+        async with db.session() as s:
+            alert = await create_alert(
+                s,
+                owner_user_id=m.from_user.id,
+                title=data.get("title"),
+                content_type=data["content_type"],
+                content_json=data["content_json"],
+                kind="cron",
+                run_at_utc=None,
+                cron=cron,
+                tz=tz,
+                enabled=True,
+            )
+        scheduler._add_job_for_alert(alert)
+        await state.clear()
+
+        summary = T(
+            lang,
+            "alert_info",
+            title=alert.title or f"Alert #{alert.id}",
+            content_type=T(lang, f"ctype_{alert.content_type}") if f"ctype_{alert.content_type}" in phrases[lang] else alert.content_type,
+            periodicity=f"CRON: <code>{alert.cron}</code>",
+            tz=alert.tz,
+            next=human_next_fire(alert),
+            created=str(alert.created_at),
+            id=alert.id,
+        )
+        await m.answer(T(lang, "create_ok", summary=summary), reply_markup=main_kb(lang))
 
 
     # ----- Alert create flow -----
@@ -355,171 +788,11 @@ def build_router(db: Database, scheduler: AlertScheduler, default_tz: str) -> Ro
             return
 
         await state.update_data(content_json=payload)
-        await state.set_state(AlertCreate.waiting_datetime)
+        await state.set_state(AlertCreate.waiting_time_input)
         await m.answer(T(lang, "create_enter_dt"))
 
-    @r.message(AlertCreate.waiting_datetime)
-    async def step_datetime(m: Message, state: FSMContext):
-        lang = get_lang(m)
-        dt = parse_dt(m.text or "")
-        if not dt:
-            await m.answer(T(lang, "errors_invalid_dt"))
-            return
-
-        await state.update_data(dt_local_naive=dt)
-        await state.set_state(AlertCreate.waiting_timezone)
-
-        # Suggest few tzs
-        tz_kb = ReplyKeyboardMarkup(
-            resize_keyboard=True,
-            keyboard=[
-                [KeyboardButton(text="UTC"), KeyboardButton(text="Europe/Moscow")],
-                [KeyboardButton(text="Europe/Copenhagen")],
-                [KeyboardButton(text=T(lang, "kb_skip")), KeyboardButton(text=T(lang, "kb_cancel"))],
-            ],
-        )
-        await m.answer(T(lang, "create_enter_tz", tz="UTC"), reply_markup=tz_kb)
-
-    @r.message(AlertCreate.waiting_timezone)
-    async def step_timezone(m: Message, state: FSMContext):
-        lang = get_lang(m)
-        text = (m.text or "").strip()
-        if text == T(lang, "kb_cancel"):
-            await state.clear()
-            await m.answer(T(lang, "create_cancelled"), reply_markup=main_kb(lang))
-            return
-
-        # default UTC
-        tz = "UTC" if text == T(lang, "kb_skip") else text
-        try:
-            ZoneInfo(tz)
-        except Exception:
-            await m.answer(T(lang, "errors_invalid_tz"))
-            return
-
-        await state.update_data(tz=tz)
-        await state.set_state(AlertCreate.waiting_repeat)
-        await m.answer(T(lang, "create_choose_repeat"), reply_markup=repeat_kb(lang))
-
-    @r.callback_query(F.data.startswith("repeat:"))
-    async def step_repeat(cb: CallbackQuery, state: FSMContext, bot: Bot):
-        lang = get_lang(cb)
-        choice = cb.data.split(":", 1)[1]
-        await cb.message.edit_reply_markup()
-
-        data = await state.get_data()
-        title = data.get("title")
-        ctype = data["content_type"]
-        content_json = data["content_json"]
-        tz = data.get("tz", "UTC")
-        dt_local_naive: datetime = data["dt_local_naive"]
-
-        # localize
-        dt_local = dt_local_naive.replace(tzinfo=ZoneInfo(tz))
-        now_local = datetime.now(ZoneInfo(tz))
-        if dt_local <= now_local and choice != "cron":
-            await cb.message.answer(T(lang, "errors_past_dt"))
-            return
-
-        kind = "one"
-        run_at_utc: Optional[datetime] = None
-        cron: Optional[str] = None
-
-        if choice == "once":
-            kind = "one"
-            run_at_utc = dt_local.astimezone(timezone.utc)
-
-        elif choice in {"daily", "weekly", "monthly"}:
-            kind = "cron"
-            cron = build_cron_from_repeat(choice, dt_local)
-
-        elif choice == "cron":
-            # ask for custom cron
-            await state.set_state(AlertCreate.waiting_cron)
-            await cb.message.answer(T(lang, "create_enter_cron"))
-            await state.update_data(_pending_build=dict(
-                title=title, ctype=ctype, content_json=content_json, tz=tz, dt_local_iso=dt_local.isoformat()
-            ))
-            return
-
-        # create alert
-        async with db.session() as s:
-            alert = await create_alert(
-                s,
-                owner_user_id=cb.from_user.id,
-                title=title,
-                content_type=ctype,
-                content_json=content_json,
-                kind=kind,
-                run_at_utc=run_at_utc,
-                cron=cron,
-                tz=tz,
-                enabled=True,
-            )
-
-        # schedule
-        scheduler._add_job_for_alert(alert)
-
-        # done
-        await state.clear()
-        summary = T(
-            lang,
-            "alert_info",
-            title=alert.title or f"Alert #{alert.id}",
-            content_type=T(lang, f"ctype_{alert.content_type}") if f"ctype_{alert.content_type}" in phrases[lang] else alert.content_type,
-            periodicity="once" if alert.kind == "one" else f"CRON: <code>{alert.cron}</code>",
-            tz=alert.tz,
-            next=human_next_fire(alert),
-            created=str(alert.created_at),
-            id=alert.id,
-        )
-        await cb.message.answer(T(lang, "create_ok", summary=summary), reply_markup=main_kb(lang))
-
-    @r.message(AlertCreate.waiting_cron)
-    async def step_cron(m: Message, state: FSMContext):
-        lang = get_lang(m)
-        cron = (m.text or "").strip()
-        data = await state.get_data()
-        pend = data.get("_pending_build") or {}
-        tz = pend.get("tz", "UTC")
-        try:
-            cron_trigger(cron, tz)  # validate
-        except Exception:
-            await m.answer(T(lang, "errors_invalid_cron"))
-            return
-
-        # reconstruct dt_local only for info; not needed for scheduling
-        async with db.session() as s:
-            alert = await create_alert(
-                s,
-                owner_user_id=m.from_user.id,
-                title=pend.get("title"),
-                content_type=pend["ctype"],
-                content_json=pend["content_json"],
-                kind="cron",
-                run_at_utc=None,
-                cron=cron,
-                tz=tz,
-                enabled=True,
-            )
-
-        scheduler._add_job_for_alert(alert)
-        await state.clear()
-        summary = T(
-            lang,
-            "alert_info",
-            title=alert.title or f"Alert #{alert.id}",
-            content_type=T(lang, f"ctype_{alert.content_type}") if f"ctype_{alert.content_type}" in phrases[lang] else alert.content_type,
-            periodicity=f"CRON: <code>{alert.cron}</code>",
-            tz=alert.tz,
-            next=human_next_fire(alert),
-            created=str(alert.created_at),
-            id=alert.id,
-        )
-        await m.answer(T(lang, "create_ok", summary=summary), reply_markup=main_kb(lang))
 
     # ----- Alert list / detail / delete -----
-
     @r.callback_query(F.data.startswith("alert:"))
     async def on_alert_callbacks(cb: CallbackQuery):
         lang = get_lang(cb)

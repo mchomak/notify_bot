@@ -1,8 +1,0 @@
-2025-08-16 03:49:43.780 | INFO     | MainProcess:MainThread | __main__:main:59 - Starting bot…
-2025-08-16 03:49:44.087 | INFO     | MainProcess:MainThread | handlers:install_bot_commands:120 - Bot commands installed
-2025-08-16 03:49:44.099 | INFO     | MainProcess:MainThread | alerts:start:64 - APScheduler started
-2025-08-16 03:49:44.110 | INFO     | MainProcess:MainThread | alerts:rebuild_from_db:102 - Rebuilt alert schedule
-2025-08-16 04:02:48.182 | INFO     | MainProcess:MainThread | __main__:main:59 - Starting bot…
-2025-08-16 04:02:48.495 | INFO     | MainProcess:MainThread | handlers:install_bot_commands:120 - Bot commands installed
-2025-08-16 04:02:48.501 | INFO     | MainProcess:MainThread | alerts:start:64 - APScheduler started
-2025-08-16 04:02:48.530 | INFO     | MainProcess:MainThread | alerts:rebuild_from_db:102 - Rebuilt alert schedule
