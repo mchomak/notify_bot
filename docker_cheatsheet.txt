@@ -1,0 +1,57 @@
+# 1. Сборка образа
+docker compose build
+
+# 2. Запуск контейнеров в фоне
+docker compose up -d
+
+# 3. Перезапуск (с пересборкой образов)
+docker compose up -d --build
+
+# 4. Остановить контейнеры (но не удалять)
+docker compose stop
+
+# 5. Остановить и удалить контейнеры
+docker compose down
+
+# 6. Остановить и удалить + очистить тома (БД, логи!)
+docker compose down -v
+
+# 7. Логи всех сервисов
+docker compose logs -f
+
+# 8. Логи только сервиса "bot"
+docker compose logs -f bot
+
+# 9. Войти в bash контейнера "bot"
+docker compose exec bot bash
+
+# 10. Войти в python внутри контейнера
+docker compose exec bot python
+
+# 11. Посмотреть список контейнеров
+docker ps
+
+# 12. Посмотреть все образы
+docker images
+
+# 13. Удалить неиспользуемые образы и контейнеры
+docker system prune -f
+
+# 14. Проверка состояния Redis
+docker compose exec redis redis-cli ping
+# Ожидаемый ответ: PONG
+
+# 15. Ручное выполнение миграций или тестов в контейнере
+docker compose exec bot python your_script.py
+
+# 16. Пересоздание только одного сервиса (например bot)
+docker compose up -d --build bot
+
+# 17. Перезапустить сервис без пересборки
+docker compose restart bot
+
+==========================
+Примечания:
+- SQLite в docker-compose настроен с volume: ./data:/app/data → данные сохраняются при пересборке.
+- Логи можно вынести в volume ./logs:/app/logs для сохранения между перезапусками.
+==========================

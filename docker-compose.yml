@@ -3,7 +3,7 @@ version: "3.9"
 services:
   bot:
     build: .
-    container_name: notify_bot
+    container_name: mybot
     restart: unless-stopped
     env_file:
       - .env

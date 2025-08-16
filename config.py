@@ -1,22 +1,3 @@
-CSV_FIELDS = [
-  "user_id","created_at","send_at","alert_id",
-  "title","kind","times","days_of_week",
-  "window_start","window_end","interval_minutes","cron_expr",
-  "src_chat_id","src_message_id","content_type"
-]
-
-INTERVAL_JSON_SPEC = {
-    "kind": "one_time|daily|weekly|window_interval|cron",
-    "times": "list of 'HH:MM' strings in 24h (for daily/weekly)",
-    "days_of_week": "list of ['mon','tue','wed','thu','fri','sat','sun'] (weekly only)",
-    "window": {"start": "HH:MM", "end": "HH:MM"},
-    "interval_minutes": "integer minutes for window_interval",
-    "cron_expr": "string crontab expression (optional)",
-    "timezone": "IANA tz, optional (ignore if absent)",
-    "name": "optional short title (<=100 chars)"
-}
-
-
 # config.py
 from __future__ import annotations
 
@@ -47,15 +28,12 @@ class Settings:
 
     telegram_alerts_chat_id: Optional[str] = None
     redis_url: Optional[str] = None
-    webhook_url: Optional[str] = None
-    sentry_dsn: Optional[str] = None
-    deepseek_key: Optional[str] = None
-    api_url: Optional[str] = None
 
 
 def _to_bool(value: Optional[str], default: bool = False) -> bool:
     if value is None:
         return default
+    
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
@@ -77,8 +55,6 @@ def load_env(env_file: str = ".env") -> Settings:
 
     database_url = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./data/app.db").strip()
     redis_url = os.getenv("REDIS_URL")
-    webhook_url = os.getenv("WEBHOOK_URL")
-    sentry_dsn = os.getenv("SENTRY_DSN")
 
     try:
         app_env = AppEnv(app_env_str)
@@ -92,9 +68,6 @@ def load_env(env_file: str = ".env") -> Settings:
     valid_levels = {"TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
     if log_level not in valid_levels:
         raise ValueError(f"LOG_LEVEL must be one of {sorted(valid_levels)} (got: {log_level}).")
-
-    if webhook_url and not webhook_url.startswith("https://"):
-        raise ValueError("WEBHOOK_URL must start with https:// (Telegram requires HTTPS).")
 
     if database_url.startswith("sqlite"):
         try:
@@ -112,8 +85,6 @@ def load_env(env_file: str = ".env") -> Settings:
         telegram_alerts_chat_id=telegram_alerts_chat_id,
         database_url=database_url,
         redis_url=redis_url,
-        webhook_url=webhook_url,
-        sentry_dsn=sentry_dsn,
     )
 
 

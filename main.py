@@ -11,14 +11,10 @@ from config import load_env, get_runtime_env, Settings
 from db import Database
 from fsm import create_fsm_storage
 from handlers import build_router, install_bot_commands
-from example_router import build_tests_router
-from setup_redis import build_fsm_diag_router
 from setup_log import (
     setup_logging,
     start_telegram_alerts_dispatcher,
     report_exception,
-    timed,
-    timed_decorator,
 )
 
 
@@ -67,19 +63,6 @@ async def main() -> None:
 
     # 8) Routers: core handlers + tests + diagnostics
     dp.include_router(build_router(db))
-    dp.include_router(build_tests_router())                 # expectations (any/number/photo/…)
-    dp.include_router(build_fsm_diag_router(settings.redis_url or ""))  # redis_ping / fsm_state …
-
-    # 9) Timing examples (optional)
-    with timed("handlers_registration", warn_over_ms=200):
-        # Place any additional heavy init here
-        pass
-
-    @timed_decorator("ping_demo", warn_over_ms=50)
-    async def ping_demo():
-        await asyncio.sleep(0.06)
-
-    await ping_demo()
 
     # 10) Polling loop
     try:

@@ -1,0 +1,924 @@
+=== db.py ===
+# db.py
+from __future__ import annotations
+
+from contextlib import asynccontextmanager
+from dataclasses import dataclass
+from datetime import datetime
+from decimal import Decimal
+from typing import Optional
+
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    DateTime,
+    Integer,
+    Numeric,
+    String,
+    Index,
+    func,
+    event,
+    select,
+)
+from sqlalchemy.ext.asyncio import (
+    create_async_engine,
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+)
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class User(Base):
+    """Basic Telegram user info (extend as needed)."""
+
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
+    user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, unique=True)
+    tg_username: Mapped[Optional[str]] = mapped_column(String(64))
+    lang: Mapped[Optional[str]] = mapped_column(String(8))
+    is_premium: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_bot: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    balance: Mapped[Decimal] = mapped_column(Numeric(18, 6), nullable=False, default=Decimal("0"))
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+    last_seen_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+
+    subscribed_until: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    consent_privacy: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    __table_args__ = (Index("ix_users_user_id", "user_id"),)
+
+
+@dataclass
+class Database:
+    """
+    Lightweight async SQLAlchemy wrapper for SQLite.
+    Usage:
+        db = await Database.create("sqlite+aiosqlite:///./data/app.db")
+        async with db.session() as s: ...
+    """
+
+    engine: AsyncEngine
+    session_factory: async_sessionmaker[AsyncSession]
+
+    @classmethod
+    async def create(cls, url: str) -> "Database":
+        """Create engine/session and apply SQLite PRAGMAs."""
+        if not url.startswith("sqlite+aiosqlite://"):
+            raise ValueError("Expected URL like sqlite+aiosqlite:///path/to.db")
+
+        engine = create_async_engine(
+            url,
+            echo=False,
+            pool_pre_ping=True,
+            connect_args={"check_same_thread": False},
+        )
+
+        @event.listens_for(engine.sync_engine, "connect", insert=True)
+        def _set_sqlite_pragma(dbapi_connection, _):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA journal_mode=WAL;")
+            cursor.execute("PRAGMA synchronous=NORMAL;")
+            cursor.execute("PRAGMA foreign_keys=ON;")
+            cursor.close()
+
+        session_factory = async_sessionmaker(engine, expire_on_commit=False)
+
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+        return cls(engine=engine, session_factory=session_factory)
+
+    @asynccontextmanager
+    async def session(self) -> AsyncSession:
+        """Auto-commit on success; rollback on error."""
+        session: AsyncSession = self.session_factory()
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
+
+    async def close(self) -> None:
+        await self.engine.dispose()
+
+
+async def upsert_user_basic(
+    session: AsyncSession,
+    *,
+    user_id: int,
+    tg_username: Optional[str] = None,
+    lang: Optional[str] = None,
+    is_premium: Optional[bool] = None,
+    is_bot: Optional[bool] = None,
+    last_seen_at: Optional[datetime] = None,
+    consent_privacy: Optional[bool] = None,
+) -> User:
+    """Create or update user by Telegram user_id."""
+    result = await session.execute(select(User).where(User.user_id == user_id))
+    user: Optional[User] = result.scalar_one_or_none()
+
+    if user is None:
+        user = User(
+            user_id=user_id,
+            tg_username=tg_username,
+            lang=lang,
+            is_premium=bool(is_premium) if is_premium is not None else False,
+            is_bot=bool(is_bot) if is_bot is not None else False,
+            last_seen_at=last_seen_at,
+            consent_privacy=bool(consent_privacy) if consent_privacy is not None else False,
+        )
+        session.add(user)
+    else:
+        if tg_username is not None:
+            user.tg_username = tg_username
+        if lang is not None:
+            user.lang = lang
+        if is_premium is not None:
+            user.is_premium = bool(is_premium)
+        if is_bot is not None:
+            user.is_bot = bool(is_bot)
+        if last_seen_at is not None:
+            user.last_seen_at = last_seen_at
+        if consent_privacy is not None:
+            user.consent_privacy = bool(consent_privacy)
+
+    return user
+
+=== config.py ===
+# config.py
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
+from typing import Optional, Dict, Any
+
+from dotenv import load_dotenv as _load_dotenv
+
+
+class AppEnv(Enum):
+    DEV = "dev"
+    STAGE = "stage"
+    PROD = "prod"
+
+
+@dataclass(frozen=True)
+class Settings:
+    """Immutable application settings resolved from ENV."""
+    app_name: str
+    app_env: AppEnv
+    debug: bool
+    log_level: str
+    telegram_bot_token: str
+    database_url: str
+
+    telegram_alerts_chat_id: Optional[str] = None
+    redis_url: Optional[str] = None
+
+
+def _to_bool(value: Optional[str], default: bool = False) -> bool:
+    if value is None:
+        return default
+    
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def load_env(env_file: str = ".env") -> Settings:
+    """
+    Load and validate settings from environment (optionally via .env).
+    Raises ValueError if required fields are missing or invalid.
+    """
+    if _load_dotenv:
+        _load_dotenv(dotenv_path=env_file, override=False)
+
+    app_name = os.getenv("APP_NAME", "mybot").strip()
+    app_env_str = os.getenv("APP_ENV", "dev").strip().lower()
+    log_level = os.getenv("LOG_LEVEL", "INFO").strip().upper()
+    debug = _to_bool(os.getenv("DEBUG"), default=(app_env_str != "prod"))
+
+    token = (os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
+    telegram_alerts_chat_id = (os.getenv("TELEGRAM_ALERTS_CHAT_ID") or "").strip() or None
+
+    database_url = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./data/app.db").strip()
+    redis_url = os.getenv("REDIS_URL")
+
+    try:
+        app_env = AppEnv(app_env_str)
+    except ValueError:
+        allowed = [e.value for e in AppEnv]
+        raise ValueError(f"APP_ENV must be one of {allowed} (got: {app_env_str!r}).")
+
+    if not token:
+        raise ValueError("TELEGRAM_BOT_TOKEN is required but not set.")
+
+    valid_levels = {"TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
+    if log_level not in valid_levels:
+        raise ValueError(f"LOG_LEVEL must be one of {sorted(valid_levels)} (got: {log_level}).")
+
+    if database_url.startswith("sqlite"):
+        try:
+            path_part = database_url.split("///", 1)[1]
+            Path(path_part).parent.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
+
+    return Settings(
+        app_name=app_name,
+        app_env=app_env,
+        debug=debug,
+        log_level=log_level,
+        telegram_bot_token=token,
+        telegram_alerts_chat_id=telegram_alerts_chat_id,
+        database_url=database_url,
+        redis_url=redis_url,
+    )
+
+
+def get_runtime_env(settings: Optional[Settings] = None) -> Dict[str, Any]:
+    """Normalized runtime snapshot to inject into logs/metrics."""
+    settings = settings or load_env()
+    env = settings.app_env
+    return {
+        "env": env.value,
+        "is_dev": env is AppEnv.DEV,
+        "is_stage": env is AppEnv.STAGE,
+        "is_prod": env is AppEnv.PROD,
+        "debug": settings.debug,
+        "log_level": settings.log_level,
+        "app_name": settings.app_name,
+    }
+
+
+=== fsm.py ===
+# fsm.py
+from __future__ import annotations
+
+from typing import Optional
+
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.storage.base import BaseStorage
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
+from loguru import logger
+from redis.asyncio import Redis
+from redis.exceptions import ConnectionError as RedisConnectionError, TimeoutError as RedisTimeoutError
+
+
+# ---------- storage ----------
+
+def create_redis_storage(redis_dsn: Optional[str]) -> RedisStorage:
+    """Create RedisStorage with a sane key builder."""
+    dsn = redis_dsn or "redis://localhost:6379/0"
+    redis = Redis.from_url(dsn, encoding="utf-8", decode_responses=True)
+    return RedisStorage(
+        redis=redis,
+        key_builder=DefaultKeyBuilder(with_bot_id=True, with_destiny=True),
+    )
+
+
+async def create_fsm_storage(redis_dsn: Optional[str]) -> BaseStorage:
+    """
+    Try Redis for FSM storage; fall back to in-memory if Redis is unavailable.
+    """
+    dsn = redis_dsn or "redis://localhost:6379/0"
+    try:
+        redis = Redis.from_url(dsn, encoding="utf-8", decode_responses=True)
+        pong = await redis.ping()
+        if not pong:
+            raise RedisConnectionError("PING returned falsy")
+        logger.info(f"FSM storage: RedisStorage @ {dsn}")
+        return RedisStorage(
+            redis=redis,
+            key_builder=DefaultKeyBuilder(with_bot_id=True, with_destiny=True),
+        )
+    except (RedisConnectionError, RedisTimeoutError, OSError) as e:
+        logger.warning(f"Redis unavailable ({e!r}). Falling back to MemoryStorage.")
+        return MemoryStorage()
+
+
+# ---------- states ----------
+
+class AnyInput(StatesGroup):
+    waiting_any = State()
+    waiting_number = State()
+    waiting_photo = State()
+    waiting_video = State()
+    waiting_document = State()
+    waiting_audio = State()      # content_type == audio
+    waiting_voice = State()      # content_type == voice
+    waiting_video_note = State() # content_type == video_note
+
+
+# ---------- expectations for inputs ----------
+
+async def expect_any(state: FSMContext) -> None:
+    await state.set_state(AnyInput.waiting_any)
+
+
+async def expect_number(state: FSMContext) -> None:
+    await state.set_state(AnyInput.waiting_number)
+
+
+async def expect_photo(state: FSMContext) -> None:
+    await state.set_state(AnyInput.waiting_photo)
+
+
+async def expect_video(state: FSMContext) -> None:
+    await state.set_state(AnyInput.waiting_video)
+
+
+async def expect_document(state: FSMContext) -> None:
+    await state.set_state(AnyInput.waiting_document)
+
+
+async def expect_audio(state: FSMContext) -> None:
+    await state.set_state(AnyInput.waiting_audio)
+
+
+async def expect_voice(state: FSMContext) -> None:
+    await state.set_state(AnyInput.waiting_voice)
+
+
+async def expect_video_note(state: FSMContext) -> None:
+    await state.set_state(AnyInput.waiting_video_note)
+
+
+=== handlers.py ===
+# handlers.py
+from __future__ import annotations
+
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from decimal import Decimal
+from typing import Optional
+
+from aiogram import Router, F, Bot
+from aiogram.filters import Command
+from aiogram.types import (
+    Message,
+    BotCommand,
+)
+from loguru import logger
+from sqlalchemy import select, func
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from db import (
+    Database,
+    User,
+    upsert_user_basic,
+)
+from text import phrases
+
+
+# ---------- i18n helpers ----------
+def get_lang(m: Message) -> str:
+    code = (m.from_user and m.from_user.language_code) or "en"
+    return "ru" if code and code.startswith("ru") else "en"
+
+
+def T(locale: str, key: str, **fmt) -> str:
+    """Get string from `phrases` with fallback to English."""
+    val = phrases.get(locale, {}).get(key) or phrases["en"].get(key) or key
+    return val.format(**fmt)
+
+
+def T_item(locale: str, key: str, subkey: str) -> str:
+    """Get nested item e.g. phrases[locale]['help_items']['start']."""
+    return phrases.get(locale, {}).get(key, {}).get(subkey) \
+        or phrases["en"].get(key, {}).get(subkey, subkey)
+
+
+# ---------- commands install ----------
+
+async def install_bot_commands(bot: Bot, lang: str = "en") -> None:
+    items = phrases[lang]["help_items"]
+    cmds = [
+        BotCommand(command="start", description=items["start"]),
+        BotCommand(command="help", description=items["help"]),
+        BotCommand(command="profile", description=items["profile"]),
+    ]
+    await bot.set_my_commands(cmds)
+    logger.info("Bot commands installed", extra={"lang": lang})
+
+
+# ---------- profile ----------
+
+@dataclass
+class Profile:
+    user: Optional[User]
+    currency: str
+    balance_xtr: Decimal
+
+
+async def get_profile(session: AsyncSession, *, tg_user_id: int) -> Profile:
+    """Return user profile with succeeded tx stats and XTR balance."""
+    user = (await session.execute(
+        select(User).where(User.user_id == tg_user_id)
+    )).scalar_one_or_none()
+    currency = "XTR"
+    balance = user.balance if (user and user.balance is not None) else Decimal("0")
+
+    return Profile(user=user, currency=currency, balance_xtr=balance)
+
+
+def build_router(db: Database) -> Router:
+    """Primary router: start/help/profile/buy + payments flow."""
+    r = Router()
+
+    @r.message(Command("start"))
+    async def cmd_start(m: Message):
+        lang = get_lang(m)
+        async with db.session() as s:
+            await upsert_user_basic(
+                s,
+                user_id=m.from_user.id,
+                tg_username=m.from_user.username,
+                lang=m.from_user.language_code,
+                last_seen_at=datetime.now(timezone.utc),
+                is_premium=getattr(m.from_user, "is_premium", False),
+                is_bot=m.from_user.is_bot,
+            )
+        await m.answer(f"<b>{T(lang, 'start_title')}</b>\n{T(lang, 'start_desc')}")
+
+    @r.message(Command("help"))
+    async def cmd_help(m: Message):
+        lang = get_lang(m)
+        items = phrases[lang]["help_items"]
+        lines = [f"<b>{T(lang, 'help_header')}</b>"]
+        for cmd, desc in items.items():
+            lines.append(f"/{cmd} — {desc}")
+        await m.answer("\n".join(lines))
+
+    @r.message(Command("profile"))
+    async def cmd_profile(m: Message):
+        lang = get_lang(m)
+        async with db.session() as s:
+            prof = await get_profile(s, tg_user_id=m.from_user.id)
+
+        if not prof.user:
+            await m.answer(T(lang, "profile_not_found"))
+            return
+
+        u = prof.user
+        text = "\n".join(
+            [
+                f"<b>{T(lang, 'profile_title')}</b>",
+                T(lang, "profile_line_id", user_id=u.user_id),
+                T(lang, "profile_line_user", username=u.tg_username or "-"),
+                T(lang, "profile_line_lang", lang=u.lang or "-"),
+                T(lang, "profile_line_created", created=str(u.created_at) if u.created_at else "-"),
+                T(lang, "profile_line_last_seen", last_seen=str(u.last_seen_at) if u.last_seen_at else "-"),
+                T(lang, "profile_line_balance", balance=prof.balance_xtr),
+            ]
+        )
+        await m.answer(text)
+
+
+
+=== main.py ===
+# main.py
+from __future__ import annotations
+
+import asyncio
+import contextlib
+
+from aiogram import Bot, Dispatcher
+from loguru import logger
+
+from config import load_env, get_runtime_env, Settings
+from db import Database
+from fsm import create_fsm_storage
+from handlers import build_router, install_bot_commands
+from setup_log import (
+    setup_logging,
+    start_telegram_alerts_dispatcher,
+    report_exception,
+)
+
+
+async def main() -> None:
+    # 1) Load settings from ENV/.env
+    settings: Settings = load_env()
+
+    # 2) Database (SQLite via async SQLAlchemy). Creates file/tables if missing.
+    db = await Database.create(settings.database_url)
+
+    # 3) FSM storage (Redis if available, otherwise in-memory)
+    storage = await create_fsm_storage(settings.redis_url)
+
+    # 4) Telegram Bot and Dispatcher
+    bot = Bot(token=settings.telegram_bot_token)
+    dp = Dispatcher(storage=storage)
+
+    # 5) Optional Telegram alerts dispatcher for CRITICAL logs
+    alerts_queue_put = None
+    alerts_task = None
+    if settings.telegram_alerts_chat_id:
+        # Start alerts dispatcher first to reuse its queue in logging sinks
+        queue, task = await start_telegram_alerts_dispatcher(
+            bot, chat_id=settings.telegram_alerts_chat_id
+        )
+        alerts_queue_put = queue.put_nowait
+        alerts_task = task
+
+    # 6) Logging (console + rotating files + optional Telegram sink)
+    setup_logging(
+        app_name=settings.app_name,
+        log_dir="logs",
+        log_level=settings.log_level,
+        rotation="10 MB",
+        retention="7 days",
+        compression="zip",
+        telegram_queue_put=alerts_queue_put,
+        telegram_min_level="CRITICAL",
+        telegram_dedupe_seconds=60,
+    )
+
+    logger.info("Starting bot…", extra={"runtime": get_runtime_env(settings)})
+
+    # 7) Install bot commands (menu)
+    await install_bot_commands(bot, lang="ru")  # or "en"
+
+    # 8) Routers: core handlers + tests + diagnostics
+    dp.include_router(build_router(db))
+
+    # 10) Polling loop
+    try:
+        await dp.start_polling(bot)
+
+    except Exception as exc:
+        report_exception(exc, ctx={"phase": "polling"})
+        raise
+    
+    finally:
+        # Stop alerts dispatcher
+        if alerts_task:
+            alerts_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await alerts_task
+
+        # Close DB engine
+        await db.close()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+
+=== setup_log.py ===
+# setup_log.py
+from __future__ import annotations
+
+import asyncio
+import os
+import sys
+import time
+import traceback
+from contextlib import contextmanager
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Any, Callable, Optional, Union
+
+from aiogram import Bot
+from loguru import logger
+
+
+def _level_no(name: str) -> int:
+    order = {
+        "TRACE": 5,
+        "DEBUG": 10,
+        "INFO": 20,
+        "SUCCESS": 25,
+        "WARNING": 30,
+        "ERROR": 40,
+        "CRITICAL": 50,
+    }
+    return order.get(name.upper(), 0)
+
+
+def _escape_html(s: str) -> str:
+    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _format_record_html(record: dict, include_exc: bool = True) -> str:
+    """Format log record to compact HTML for Telegram alerts."""
+    ts = datetime.fromtimestamp(
+        record["time"].timestamp(), tz=timezone.utc
+    ).strftime("%Y-%m-%d %H:%M:%S UTC")
+    lvl = record["level"].name
+    mod = record["module"]
+    func = record["function"]
+    line = record["line"]
+    msg = _escape_html(str(record["message"]).strip())
+
+    lines = [
+        f"<b>{_escape_html(lvl)}</b> · <code>{ts}</code>",
+        f"<b>At:</b> <code>{mod}.{func}:{line}</code>",
+        f"<b>Msg:</b> {msg}",
+    ]
+
+    extra = record.get("extra") or {}
+    if extra:
+        try:
+            sanitized = {
+                k: (str(v)[:300] + "…") if isinstance(v, str) and len(str(v)) > 300 else v
+                for k, v in extra.items()
+            }
+            lines.append(
+                f"<b>Extra:</b> <code>{_escape_html(str(sanitized))}</code>"
+            )
+        except Exception:
+            pass
+
+    if include_exc and record.get("exception"):
+        try:
+            exc_text = "".join(
+                traceback.format_exception(
+                    record["exception"].type,
+                    record["exception"].value,
+                    record["exception"].traceback,
+                )
+            )
+            exc_text = _escape_html(exc_text)
+            lines.append("<b>Traceback:</b>\n<pre>" + exc_text[:3000] + "</pre>")
+        except Exception:
+            pass
+
+    return "\n".join(lines)
+
+
+class _TelegramSink:
+    """Non-blocking sink: pushes formatted alert text into a queue processed by an async dispatcher."""
+
+    def __init__(
+        self,
+        put: Callable[[str], None],
+        min_level: str = "CRITICAL",
+        dedupe_seconds: int = 60,
+        max_message_len: int = 3800,
+        include_exc: bool = True,
+    ):
+        self.put = put
+        self.min_level = min_level
+        self.dedupe_seconds = dedupe_seconds
+        self.max_message_len = max_message_len
+        self.include_exc = include_exc
+        self._last_by_key: dict[str, float] = {}
+
+    def __call__(self, message):
+        record = message.record
+        lvl_name: str = record["level"].name
+        if _level_no(lvl_name) < _level_no(self.min_level):
+            return
+
+        text = _format_record_html(record, include_exc=self.include_exc)
+        key = f"{lvl_name}:{record['message']}"
+        now = time.monotonic()
+        last = self._last_by_key.get(key, 0.0)
+        if now - last < self.dedupe_seconds:
+            return
+        self._last_by_key[key] = now
+
+        if len(text) > self.max_message_len:
+            text = text[: self.max_message_len] + "\n\n<i>(truncated)</i>"
+
+        try:
+            self.put(text)
+        except Exception:
+            # Do not break logging pipeline
+            pass
+
+
+def setup_logging(
+    *,
+    app_name: str = "mybot",
+    log_dir: str = "logs",
+    log_level: str = "DEBUG",
+    rotation: str = "10 MB",
+    retention: str = "7 days",
+    compression: str = "zip",
+    telegram_queue_put: Optional[Callable[[str], None]] = None,
+    telegram_min_level: str = "CRITICAL",
+    telegram_dedupe_seconds: int = 60,
+) -> None:
+    """
+    Configure loguru:
+      - console sink
+      - rotating file and error file
+      - optional Telegram sink via queue (non-blocking)
+    Call once at process start.
+    """
+    os.makedirs(log_dir, exist_ok=True)
+    logger.remove()
+
+    console_fmt = (
+        "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> "
+        "| <level>{level: <8}</level> "
+        "| <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> "
+        "- <level>{message}</level>"
+    )
+    logger.add(
+        sys.stdout,
+        level=log_level,
+        format=console_fmt,
+        enqueue=True,
+        backtrace=False,
+        diagnose=False,
+    )
+
+    file_fmt = (
+        "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} "
+        "| {process.name}:{thread.name} "
+        "| {name}:{function}:{line} - {message}"
+    )
+
+    debug_path = os.path.join(log_dir, f"{app_name}.debug.log")
+    logger.add(
+        debug_path,
+        level=log_level,
+        format=file_fmt,
+        rotation=rotation,
+        retention=retention,
+        compression=compression,
+        enqueue=True,
+        backtrace=True,
+        diagnose=False,
+    )
+
+    err_path = os.path.join(log_dir, f"{app_name}.error.log")
+    logger.add(
+        err_path,
+        level="ERROR",
+        format=file_fmt,
+        rotation=rotation,
+        retention=retention,
+        compression=compression,
+        enqueue=True,
+        backtrace=True,
+        diagnose=False,
+    )
+
+    if telegram_queue_put is not None:
+        sink = _TelegramSink(
+            put=telegram_queue_put,
+            min_level=telegram_min_level,
+            dedupe_seconds=telegram_dedupe_seconds,
+        )
+        logger.add(sink, level=telegram_min_level, enqueue=True, catch=True)
+
+    logger.debug(
+        "Logging initialized",
+        extra={
+            "app_name": app_name,
+            "dir": log_dir,
+            "rotation": rotation,
+            "retention": retention,
+            "compression": compression,
+            "telegram_sink": bool(telegram_queue_put),
+        },
+    )
+
+
+def report_exception(
+    e: BaseException, ctx: Optional[dict[str, Any]] = None, extra_text: Optional[str] = None
+) -> None:
+    """Unified exception reporting into logs (Telegram sink picks CRITICAL automatically)."""
+    ctx = ctx or {}
+    msg = "Unhandled exception"
+    if extra_text:
+        msg += f": {extra_text}"
+    logger.opt(exception=e).critical(msg, extra={"ctx": ctx})
+
+
+@contextmanager
+def timed(name: str, *, level: str = "DEBUG", warn_over_ms: Optional[int] = None):
+    """Measure a code block execution time; warn if threshold exceeded."""
+    t0 = time.perf_counter()
+    try:
+        yield
+    finally:
+        dt_ms = int((time.perf_counter() - t0) * 1000)
+        if warn_over_ms is not None and dt_ms >= warn_over_ms:
+            logger.warning(f"[timed] {name} took {dt_ms} ms (>= {warn_over_ms} ms)")
+        else:
+            logger.log(level.upper(), f"[timed] {name} took {dt_ms} ms")
+
+
+def timed_decorator(
+    name: Optional[str] = None, *, level: str = "DEBUG", warn_over_ms: Optional[int] = None
+):
+    """Decorator variant of `timed` for functions/coroutines."""
+    def wrapper(func):
+        nm = name or func.__name__
+        if asyncio.iscoroutinefunction(func):
+            async def inner(*args, **kwargs):
+                with timed(nm, level=level, warn_over_ms=warn_over_ms):
+                    return await func(*args, **kwargs)
+        else:
+            def inner(*args, **kwargs):
+                with timed(nm, level=level, warn_over_ms=warn_over_ms):
+                    return func(*args, **kwargs)
+        return inner
+    return wrapper
+
+
+async def start_telegram_alerts_dispatcher(
+    bot: Bot,
+    chat_id: Union[int, str],
+    queue: Optional[asyncio.Queue[str]] = None,
+    *,
+    parse_mode: str = "HTML",
+    min_interval_sec: float = 1.0,
+) -> tuple[asyncio.Queue[str], asyncio.Task]:
+    """
+    Spawn async task that sends texts from queue to a Telegram chat.
+    The sink only enqueues; this dispatcher performs the I/O.
+    """
+    q: asyncio.Queue[str] = queue or asyncio.Queue(maxsize=100)
+
+    async def _runner():
+        last_sent = 0.0
+        while True:
+            text = await q.get()
+            now = time.monotonic()
+            delay = last_sent + min_interval_sec - now
+            if delay > 0:
+                await asyncio.sleep(delay)
+            try:
+                await bot.send_message(
+                    chat_id=chat_id,
+                    text=text,
+                    parse_mode=parse_mode,
+                    disable_web_page_preview=True,
+                )
+                last_sent = time.monotonic()
+            except Exception as ex:
+                logger.warning(f"Failed to send alert to Telegram: {ex!r}")
+                await asyncio.sleep(5.0)
+            q.task_done()
+
+    task = asyncio.create_task(_runner(), name="telegram_alerts_dispatcher")
+    return q, task
+
+
+=== text.py ===
+# text.py
+phrases = {
+    "ru": {
+        "start_title": "Привет!",
+        "start_desc": "Я демонстрационный бот. Покажу профайл, список команд и оплачу «звёздами».",
+        "help_header": "Доступные команды:",
+        "help_items": {
+            "start": "краткое приветствие и регистрация в БД",
+            "help": "показать список команд",
+            "profile": "показать твои данные в боте",
+        },
+        "profile_not_found": "Пользователь не найден в БД.",
+        "profile_title": "Твой профиль",
+        "profile_line_id": "ID: <code>{user_id}</code>",
+        "profile_line_user": "Username: @{username}",
+        "profile_line_lang": "Язык: {lang}",
+        "profile_line_created": "Создан: {created}",
+        "profile_line_last_seen": "Последний визит: {last_seen}",
+        "profile_line_balance": "Баланс (XTR): {balance}",
+    },
+    "en": {
+        "start_title": "Hi!",
+        "start_desc": "I'm a demo bot. I can show your profile, list commands and accept Stars.",
+        "help_header": "Available commands:",
+        "help_items": {
+            "start": "short greeting and DB registration",
+            "help": "show the command list",
+            "profile": "show your profile data",
+        },
+        "profile_not_found": "User not found in DB.",
+        "profile_title": "Your profile",
+        "profile_line_id": "ID: <code>{user_id}</code>",
+        "profile_line_user": "Username: @{username}",
+        "profile_line_lang": "Language: {lang}",
+        "profile_line_created": "Created: {created}",
+        "profile_line_last_seen": "Last seen: {last_seen}",
+        "profile_line_balance": "Balance (XTR): {balance}",
+    },
+}
+
+

@@ -1,59 +1,39 @@
+# text.py
 phrases = {
-  "ru": {
-    "start": "Добро пожаловать! Выберите действие:",
-    "buttons": [["Новая нотификация", "Мои уведомления"]],
-
-    "ask_content": "Пришлите содержимое для уведомления: текст, фото, видео/кружок, голос, документ, аудио или GIF.",
-    "choose_kind": "Это одноразовое уведомление или интервальное?",
-    "one_time_btn": "Одноразовое",
-    "interval_btn": "Интервальное",
-
-    "ask_time": "Напишите время (например: «22 10», «в 9 вечера», «завтра в 7 05», «через 15 минут»).",
-    "confirm_prompt": "Запланировать на {when}? Подтвердите или задайте заново.",
-    "confirm_btn": "Подтвердить",
-    "redo_btn": "Задать заново",
-
-    "ask_interval_desc": (
-        "Опишите интервал **в одном сообщении**. Примеры:\n"
-        "— «каждый день в 21:00»\n"
-        "— «каждый будний в 07:00»\n"
-        "— «каждый день с 15:00 по 21:00 каждые 90 минут»\n"
-        "— «по понедельникам и средам в 18:30 и 20:00»"
-    ),
-    "interval_preview": "Нашёл такой расписатель:\n{preview}\nПодтвердите или задайте заново.",
-    "interval_confirm_error": "Не удалось обработать сценарий интервала. Попробуйте переформулировать.",
-
-    "ask_title": "Хотите назвать уведомление? (до 100 символов). Если нет — нажмите «Пропустить».",
-    "title_btn_skip": "Пропустить",
-    "title_btn_enter": "Ввести название",
-    "title_prompt": "Введите название (до 100 символов):",
-    "title_too_long": "Название длиннее 100 символов. Попробуйте короче.",
-    "saving": "Сохраняю...",
-
-    "scheduled": "Готово! Уведомление сохранено: {title}\n{details}",
-
-    "alerts_header": "Ваши текущие уведомления:",
-    "back_btn": "← Назад",
-    "delete_btn": "Удалить",
-    "your_alerts": "Ваши текущие уведомления:\n{list}",
-    "no_alerts": "У вас нет запланированных уведомлений.",
-
-    "no_video": "Сначала пришлите медиасообщение.",
-    "time_error": (
-        "Не удалось распознать или время в прошлом. Примеры:\n"
-        "— «9 53»\n"
-        "— «в 9 вечера в 53 минуты»\n"
-        "— «завтра в 7»"
-    ),
-
-    # ожидания/ошибки
-    "expect_media": "Сейчас жду контент для уведомления: текст, фото, видео/кружок, голос и т.п.",
-    "expect_kind": "Выберите тип уведомления с помощью кнопок ниже.",
-    "expect_time": "Сейчас жду время. Примеры: «22 10», «в 9 вечера», «завтра в 7 05», «через 15 минут».",
-    "expect_interval_desc_need": "Сейчас жду описание интервала в одном сообщении.",
-    "expect_title_choice": "Выберите: ввести название или пропустить.",
-    "expect_title_input_need": "Сейчас жду текст названия (до 100 символов).",
-    "expect_time_confirm": "Подтвердите время или задайте заново.",
-    "generic_expect": "Похоже, я жду другой тип ответа. Следуйте подсказкам на экране."
-  }
+    "ru": {
+        "start_title": "Привет!",
+        "start_desc": "Я демонстрационный бот. Покажу профайл, список команд и оплачу «звёздами».",
+        "help_header": "Доступные команды:",
+        "help_items": {
+            "start": "краткое приветствие и регистрация в БД",
+            "help": "показать список команд",
+            "profile": "показать твои данные в боте",
+        },
+        "profile_not_found": "Пользователь не найден в БД.",
+        "profile_title": "Твой профиль",
+        "profile_line_id": "ID: <code>{user_id}</code>",
+        "profile_line_user": "Username: @{username}",
+        "profile_line_lang": "Язык: {lang}",
+        "profile_line_created": "Создан: {created}",
+        "profile_line_last_seen": "Последний визит: {last_seen}",
+        "profile_line_balance": "Баланс (XTR): {balance}",
+    },
+    "en": {
+        "start_title": "Hi!",
+        "start_desc": "I'm a demo bot. I can show your profile, list commands and accept Stars.",
+        "help_header": "Available commands:",
+        "help_items": {
+            "start": "short greeting and DB registration",
+            "help": "show the command list",
+            "profile": "show your profile data",
+        },
+        "profile_not_found": "User not found in DB.",
+        "profile_title": "Your profile",
+        "profile_line_id": "ID: <code>{user_id}</code>",
+        "profile_line_user": "Username: @{username}",
+        "profile_line_lang": "Language: {lang}",
+        "profile_line_created": "Created: {created}",
+        "profile_line_last_seen": "Last seen: {last_seen}",
+        "profile_line_balance": "Balance (XTR): {balance}",
+    },
 }

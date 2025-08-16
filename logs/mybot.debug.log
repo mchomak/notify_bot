@@ -1,0 +1,4 @@
+2025-08-15 01:08:07.193 | INFO     | MainProcess:MainThread | __main__:main:63 - Starting bot…
+2025-08-15 01:08:07.471 | INFO     | MainProcess:MainThread | handlers:install_bot_commands:65 - Bot commands installed
+2025-08-15 01:08:07.533 | WARNING  | MainProcess:MainThread | setup_log:timed:234 - [timed] ping_demo took 60 ms (>= 50 ms)
+2025-08-15 01:09:04.967 | INFO     | MainProcess:MainThread | handlers:on_successful_payment:197 - Stars payment succeeded

@@ -1,17 +1,13 @@
 # fsm.py
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime, timezone
 from typing import Optional
 
-from aiogram import BaseMiddleware, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.base import BaseStorage
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
-from aiogram.types import Message
 from loguru import logger
 from redis.asyncio import Redis
 from redis.exceptions import ConnectionError as RedisConnectionError, TimeoutError as RedisTimeoutError
@@ -60,89 +56,6 @@ class AnyInput(StatesGroup):
     waiting_audio = State()      # content_type == audio
     waiting_voice = State()      # content_type == voice
     waiting_video_note = State() # content_type == video_note
-
-
-class PaymentFlow(StatesGroup):
-    waiting = State()  # waiting for successful_payment
-
-
-# ---------- payment meta ----------
-
-@dataclass
-class PaymentMeta:
-    chat_id: int
-    message_id: int
-    payload: str
-    amount: str
-    currency: str
-    started_at: str  # ISO timestamp (UTC)
-
-
-# ---------- helpers ----------
-
-async def set_waiting_payment(
-    state: FSMContext,
-    *,
-    chat_id: int,
-    message_id: int,
-    payload: str,
-    amount: str,
-    currency: str = "XTR",
-) -> None:
-    """Store 'waiting-for-payment' state and metadata in FSM."""
-    await state.set_state(PaymentFlow.waiting)
-    await state.update_data(
-        invoice_chat_id=chat_id,
-        invoice_message_id=message_id,
-        payload=payload,
-        amount=amount,
-        currency=currency,
-        started_at=datetime.now(timezone.utc).isoformat(),
-    )
-
-
-async def cancel_waiting_payment(
-    state: FSMContext,
-    bot: Bot,
-    *,
-    delete_invoice: bool = True,
-) -> Optional[int]:
-    """
-    Cancel payment waiting and (optionally) delete invoice message.
-    Returns deleted message_id or None.
-    """
-    data = await state.get_data()
-    msg_id = data.get("invoice_message_id")
-    chat_id = data.get("invoice_chat_id")
-
-    if delete_invoice and chat_id and msg_id:
-        try:
-            await bot.delete_message(chat_id=chat_id, message_id=msg_id)
-        except Exception:
-            pass
-
-    await state.clear()
-    return msg_id
-
-
-# ---------- middleware ----------
-
-class PaymentGuard(BaseMiddleware):
-    """
-    If FSM is PaymentFlow.waiting, any incoming user message which is not
-    `successful_payment` will cancel the payment and delete the invoice.
-    """
-
-    async def __call__(self, handler, event: Message, data: dict):
-        if isinstance(event, Message):
-            fsm: FSMContext = data.get("state")
-            bot: Bot = data.get("bot")
-            if fsm and bot:
-                current = await fsm.get_state()
-                if current == PaymentFlow.waiting.state:
-                    if event.successful_payment is None:
-                        await cancel_waiting_payment(fsm, bot, delete_invoice=True)
-        return await handler(event, data)
 
 
 # ---------- expectations for inputs ----------
