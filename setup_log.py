@@ -222,38 +222,6 @@ def report_exception(
     logger.opt(exception=e).critical(msg, extra={"ctx": ctx})
 
 
-@contextmanager
-def timed(name: str, *, level: str = "DEBUG", warn_over_ms: Optional[int] = None):
-    """Measure a code block execution time; warn if threshold exceeded."""
-    t0 = time.perf_counter()
-    try:
-        yield
-    finally:
-        dt_ms = int((time.perf_counter() - t0) * 1000)
-        if warn_over_ms is not None and dt_ms >= warn_over_ms:
-            logger.warning(f"[timed] {name} took {dt_ms} ms (>= {warn_over_ms} ms)")
-        else:
-            logger.log(level.upper(), f"[timed] {name} took {dt_ms} ms")
-
-
-def timed_decorator(
-    name: Optional[str] = None, *, level: str = "DEBUG", warn_over_ms: Optional[int] = None
-):
-    """Decorator variant of `timed` for functions/coroutines."""
-    def wrapper(func):
-        nm = name or func.__name__
-        if asyncio.iscoroutinefunction(func):
-            async def inner(*args, **kwargs):
-                with timed(nm, level=level, warn_over_ms=warn_over_ms):
-                    return await func(*args, **kwargs)
-        else:
-            def inner(*args, **kwargs):
-                with timed(nm, level=level, warn_over_ms=warn_over_ms):
-                    return func(*args, **kwargs)
-        return inner
-    return wrapper
-
-
 async def start_telegram_alerts_dispatcher(
     bot: Bot,
     chat_id: Union[int, str],

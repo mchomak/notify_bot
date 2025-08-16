@@ -28,12 +28,12 @@ class Settings:
 
     telegram_alerts_chat_id: Optional[str] = None
     redis_url: Optional[str] = None
+    default_timezone: str = "UTC"  # used in prompts / fallback when user skips TZ
 
 
 def _to_bool(value: Optional[str], default: bool = False) -> bool:
     if value is None:
         return default
-    
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
@@ -55,6 +55,7 @@ def load_env(env_file: str = ".env") -> Settings:
 
     database_url = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./data/app.db").strip()
     redis_url = os.getenv("REDIS_URL")
+    default_tz = (os.getenv("DEFAULT_TZ") or "UTC").strip()
 
     try:
         app_env = AppEnv(app_env_str)
@@ -85,6 +86,7 @@ def load_env(env_file: str = ".env") -> Settings:
         telegram_alerts_chat_id=telegram_alerts_chat_id,
         database_url=database_url,
         redis_url=redis_url,
+        default_timezone=default_tz,
     )
 
 

@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Iterable
 
 from sqlalchemy import (
     BigInteger,
@@ -18,6 +18,8 @@ from sqlalchemy import (
     func,
     event,
     select,
+    JSON,
+    Text,
 )
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
@@ -27,10 +29,13 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
+# ---------- Base ----------
 
 class Base(DeclarativeBase):
     pass
 
+
+# ---------- Models ----------
 
 class User(Base):
     """Basic Telegram user info (extend as needed)."""
@@ -38,8 +43,8 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-
     user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, unique=True)
+
     tg_username: Mapped[Optional[str]] = mapped_column(String(64))
     lang: Mapped[Optional[str]] = mapped_column(String(8))
     is_premium: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -60,6 +65,47 @@ class User(Base):
 
     __table_args__ = (Index("ix_users_user_id", "user_id"),)
 
+
+class Alert(Base):
+    """
+    Alert definition. Supports one-time (by UTC datetime) and cron-based repeats.
+    Content is stored as Telegram file_id/text in content_json.
+    """
+
+    __tablename__ = "alerts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
+    owner_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, index=True)  # Telegram user_id
+    title: Mapped[Optional[str]] = mapped_column(String(128))
+
+    # content
+    content_type: Mapped[str] = mapped_column(String(20), nullable=False)  # text, photo, video, voice, audio, document, video_note
+    content_json: Mapped[dict] = mapped_column(JSON().with_variant(Text, "sqlite"), nullable=False)
+
+    # scheduling
+    kind: Mapped[str] = mapped_column(String(10), nullable=False, default="one")  # one | cron
+    run_at_utc: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))  # for kind=one
+    cron: Mapped[Optional[str]] = mapped_column(String(128))  # crontab (5 fields) for kind=cron
+    tz: Mapped[str] = mapped_column(String(64), nullable=False, default="UTC")
+
+    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    last_run_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    __table_args__ = (
+        Index("ix_alerts_owner_user_id", "owner_user_id"),
+        Index("ix_alerts_enabled", "enabled"),
+    )
+
+
+# ---------- DB wrapper ----------
 
 @dataclass
 class Database:
@@ -118,6 +164,8 @@ class Database:
         await self.engine.dispose()
 
 
+# ---------- Users ops ----------
+
 async def upsert_user_basic(
     session: AsyncSession,
     *,
@@ -159,3 +207,65 @@ async def upsert_user_basic(
             user.consent_privacy = bool(consent_privacy)
 
     return user
+
+
+# ---------- Alerts ops ----------
+
+async def create_alert(
+    session: AsyncSession,
+    *,
+    owner_user_id: int,
+    title: Optional[str],
+    content_type: str,
+    content_json: dict,
+    kind: str,  # "one" | "cron"
+    run_at_utc: Optional[datetime],
+    cron: Optional[str],
+    tz: str,
+    enabled: bool = True,
+) -> Alert:
+    alert = Alert(
+        owner_user_id=owner_user_id,
+        title=title,
+        content_type=content_type,
+        content_json=content_json,
+        kind=kind,
+        run_at_utc=run_at_utc,
+        cron=cron,
+        tz=tz,
+        enabled=enabled,
+    )
+    session.add(alert)
+    await session.flush()
+    return alert
+
+
+async def get_alert(session: AsyncSession, alert_id: int, owner_user_id: Optional[int] = None) -> Optional[Alert]:
+    stmt = select(Alert).where(Alert.id == alert_id)
+    if owner_user_id is not None:
+        stmt = stmt.where(Alert.owner_user_id == owner_user_id)
+    return (await session.execute(stmt)).scalar_one_or_none()
+
+
+async def list_alerts(session: AsyncSession, owner_user_id: int, *, active_only: bool = True) -> list[Alert]:
+    stmt = select(Alert).where(Alert.owner_user_id == owner_user_id)
+    if active_only:
+        stmt = stmt.where(Alert.enabled.is_(True))
+    stmt = stmt.order_by(Alert.created_at.desc())
+    return list((await session.execute(stmt)).scalars().all())
+
+
+async def disable_alert(session: AsyncSession, alert_id: int, owner_user_id: Optional[int] = None) -> bool:
+    alert = await get_alert(session, alert_id, owner_user_id)
+    if not alert:
+        return False
+    alert.enabled = False
+    return True
+
+
+async def record_alert_run(session: AsyncSession, alert_id: int, when: datetime) -> None:
+    alert = await get_alert(session, alert_id)
+    if alert:
+        alert.last_run_at = when
+        if alert.kind == "one":
+            alert.enabled = False

@@ -16,6 +16,7 @@ from setup_log import (
     start_telegram_alerts_dispatcher,
     report_exception,
 )
+from alerts import AlertScheduler
 
 
 async def main() -> None:
@@ -36,7 +37,6 @@ async def main() -> None:
     alerts_queue_put = None
     alerts_task = None
     if settings.telegram_alerts_chat_id:
-        # Start alerts dispatcher first to reuse its queue in logging sinks
         queue, task = await start_telegram_alerts_dispatcher(
             bot, chat_id=settings.telegram_alerts_chat_id
         )
@@ -61,8 +61,13 @@ async def main() -> None:
     # 7) Install bot commands (menu)
     await install_bot_commands(bot, lang="ru")  # or "en"
 
-    # 8) Routers: core handlers + tests + diagnostics
-    dp.include_router(build_router(db))
+    # 8) APScheduler for alerts
+    alert_scheduler = AlertScheduler.create(bot, db)
+    alert_scheduler.start()
+    await alert_scheduler.rebuild_from_db()
+
+    # 9) Routers: core handlers
+    dp.include_router(build_router(db, alert_scheduler, settings.default_timezone))
 
     # 10) Polling loop
     try:
@@ -71,13 +76,16 @@ async def main() -> None:
     except Exception as exc:
         report_exception(exc, ctx={"phase": "polling"})
         raise
-    
+
     finally:
         # Stop alerts dispatcher
         if alerts_task:
             alerts_task.cancel()
             with contextlib.suppress(asyncio.CancelledError):
                 await alerts_task
+
+        # Stop scheduler
+        alert_scheduler.shutdown()
 
         # Close DB engine
         await db.close()
