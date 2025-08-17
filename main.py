@@ -5,7 +5,9 @@ import asyncio
 import contextlib
 
 from aiogram import Bot, Dispatcher
+from aiogram.enums.parse_mode import ParseMode
 from loguru import logger
+from aiogram.client.default import DefaultBotProperties
 
 from config import load_env, get_runtime_env, Settings
 from db import Database
@@ -28,10 +30,13 @@ async def main() -> None:
 
     # 3) FSM storage (Redis if available, otherwise in-memory)
     storage = await create_fsm_storage(settings.redis_url)
+    dp = Dispatcher(storage=storage)
 
     # 4) Telegram Bot and Dispatcher
-    bot = Bot(token=settings.telegram_bot_token)
-    dp = Dispatcher(storage=storage)
+    bot = Bot(
+            token=settings.telegram_bot_token,
+            default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+        )
 
     # 5) Optional Telegram alerts dispatcher for CRITICAL logs
     alerts_queue_put = None
