@@ -1,0 +1,4 @@
+2025-08-17 19:23:11.458 | INFO     | MainProcess:MainThread | __main__:main:59 - Starting bot…
+2025-08-17 19:23:11.605 | INFO     | MainProcess:MainThread | handlers:install_bot_commands:134 - Bot commands installed
+2025-08-17 19:23:11.639 | INFO     | MainProcess:MainThread | alerts:start:71 - APScheduler started
+2025-08-17 19:23:11.647 | INFO     | MainProcess:MainThread | alerts:rebuild_from_db:109 - Rebuilt alert schedule
